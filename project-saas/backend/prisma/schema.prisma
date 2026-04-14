@@ -1,0 +1,352 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =============================================================
+// 1. TENANT — L'établissement (la "société" qui paie le SaaS)
+// =============================================================
+// C'est la racine de tout. Chaque donnée de la base
+// appartient à un Tenant grâce au champ tenantId.
+// Si tu supprimes un Tenant, tout ce qui lui appartient
+// est supprimé en cascade (onDelete: Cascade).
+
+model Tenant {
+  id           String       @id @default(uuid())  // Identifiant unique universel
+  name         String                              // Ex : "Le Bistrot du Port"
+  businessType BusinessType @default(RESTAURANT)   // Type d'établissement
+  createdAt    DateTime     @default(now())
+
+  // Relations — un Tenant possède tout ça :
+  users         User[]
+  staff         Staff[] 
+  roles         Role[]
+  categories    Category[]
+  products      Product[]
+  orders        Order[] 
+  cycles        Cycle[]
+  expenses      Expense[]
+  payments      Payment[]
+  notifications Notification[]
+  tables Table[]
+  subscription  Subscription?  // Un seul abonnement par établissement
+}
+
+// Les types d'établissements supportés
+enum BusinessType {
+  RESTAURANT
+  BAR
+  CAFE
+  FASTFOOD
+}
+
+// =============================================================
+// 2. USER — Le propriétaire ou manager (accès web au dashboard)
+// =============================================================
+// Ce sont les comptes qui se connectent avec email/mot de passe
+// pour gérer l'établissement depuis l'interface SaaS.
+
+model User {
+  id        String   @id @default(uuid())
+  tenantId  String                          // Appartient à quel établissement
+  email     String   @unique  // Email de connexion (unique global)
+  password  String            // Mot de passe doit etre hashe
+  role      UserRole @default(MANAGER)      // ADMIN = propriétaire, MANAGER = gérant
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  ADMIN    // Propriétaire — accès total
+  MANAGER  // Gérant — accès limité
+}
+
+
+// =============================================================
+// 3. ROLE — Rôles dynamiques pour le staff (définis par tenant)
+// =============================================================
+// Chaque établissement crée ses propres rôles avec ses propres
+// permissions. Ex : un bar n'a pas de "CHEF" mais un "BARMAN".
+// Les permissions sont une liste de strings ex: ["CREATE_ORDER"]
+
+
+model Role {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String                   // Ex : "SERVEUR", "BARMAN", "CHEF"
+  permissions String[]                 // Ex : ["VIEW_ORDERS", "UPDATE_ORDER_STATUS"]
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff  Staff[]                       // Les employés qui ont ce rôle
+}
+
+// =============================================================
+// 4. STAFF — Les employés opérationnels (se connectent via PIN)
+// =============================================================
+// Les employés ne se connectent PAS avec email/mot de passe.
+// Ils utilisent un code PIN (à 4 chiffres) sur une tablette
+// en caisse ou en salle. Le PIN est stocké hashé (sécurité).
+
+model Staff {
+  id        String   @id @default(uuid())
+  tenantId  String
+  roleId    String                     // Quel rôle a cet employé
+  name      String                     // Ex : "Jean-Marc"
+  pinHash   String                     // PIN hashé avec bcrypt
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id])
+}
+
+// =============================================================
+// 5. CATEGORY — Catégories du menu
+// =============================================================
+// Organise les produits. Type FOOD ou DRINK permet d'adapter
+// l'affichage selon le type d'établissement.
+// Ex restaurant : Entrées, Plats, Desserts (FOOD)
+// Ex bar : Cocktails, Bières, Softs (DRINK)
+
+model Category {
+  id       String       @id @default(uuid())
+  tenantId String
+  name     String                       // Ex : "Entrées"
+  type     CategoryType @default(DRINK)                 // FOOD ou DRINK
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]                    // Les produits dans cette catégorie
+}
+
+enum CategoryType {
+  FOOD
+  DRINK
+}
+
+
+// =============================================================
+// 6. PRODUCT — Les articles vendus (plats, boissons, etc.)
+// =============================================================
+// price    = prix de vente (affiché au client)
+// costPrice = prix de revient (pour calculer la marge)
+// stock / minStock = gestion des stocks avec alerte bas stock
+
+model Product {
+  id          String   @id @default(uuid())
+  tenantId    String
+  categoryId  String
+  name        String                     // Ex : "Salade César"
+  price       Float                      // Prix de vente : 12.50
+  costPrice   Float    @default(0)       // Prix de revient : 4.20
+  stock       Int      @default(0)       // Stock actuel : 50
+  minStock    Int      @default(5)       // Alerte si stock < 5
+  isActive    Boolean  @default(true)    // false = retiré du menu sans suppression
+  createdAt   DateTime @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+}
+
+// =============================================================
+// 7. CYCLE — La journée / session de caisse
+// =============================================================
+// Avant de travailler, le caissier "ouvre la caisse" → crée un Cycle.
+// Toutes les commandes et dépenses de la journée sont liées à ce Cycle.
+// En fin de journée : fermeture → Cycle passe à CLOSED.
+// Permet de faire des rapports journaliers précis.
+
+model Cycle {
+  id        String      @id @default(uuid())
+  tenantId  String
+  openedAt  DateTime    @default(now())   // Heure d'ouverture
+  closedAt  DateTime?                     // Heure de fermeture (null si encore ouvert)
+  status    CycleStatus @default(OPEN)
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders   Order[]                        // Toutes les commandes de cette session
+  expenses Expense[]                      // Toutes les dépenses de cette session
+}
+
+enum CycleStatus {
+  OPEN    // Caisse ouverte — on peut prendre des commandes
+  CLOSED  // Caisse fermée — journée terminée
+}
+
+
+// ==========================================================
+// (modifcation) Table - la table du client
+// ==========================================================
+// qrtoken = associer pour la reconnaissance de la table grace au qrcode 
+
+
+model Table {
+  id        String        @id @default(uuid())
+  tenantId  String 
+  qrToken   String   @unique @default(uuid())
+  name      String 
+  
+  isActive  Boolean  @default(true)
+  createAt  DateTime @default(now())
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders   Order[]
+
+}
+
+// =============================================================
+// 8. ORDER — Une commande client
+// =============================================================
+// tableName = numéro ou nom de la table ("Table 5", "Bar", "Terrasse 2")
+// status suit le cycle de vie de la commande :
+//   PENDING  → commande passée, en attente
+//   ACCEPTED → prise en charge par la cuisine/bar
+//   READY    → prête à être servie
+//   PAID     → réglée
+
+model Order {
+  id          String      @id @default(uuid())
+  tenantId    String
+  cycleId     String                         // Rattachée à la session du jour
+  tableId   String                         // Ex : "Table 3"
+  status      OrderStatus @default(PENDING)
+  totalAmount Float       @default(0)        // Total calculé automatiquement
+  createdAt   DateTime    @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  cycle      Cycle       @relation(fields: [cycleId], references: [id])
+  table      Table       @relation(fields: [tableId], references: [id])
+  items      OrderItem[]
+  payments   Payment[] 
+}
+
+enum OrderStatus {
+  PENDING   // En attente
+  ACCEPTED  // Acceptée en cuisine
+  READY     // Prête à servir
+  PAID      // Payée
+}
+
+// =============================================================
+// 9. ORDER ITEM — Le détail d'une commande (ligne par ligne)
+// =============================================================
+// Une commande peut avoir plusieurs items.
+// Ex : 2x Salade César + 1x Eau minérale
+// Le price ici est une copie du prix au moment de la commande
+// (si tu changes le prix du produit après, l'historique reste correct)
+
+model OrderItem {
+  id        String @id @default(uuid())
+  tenantId  String
+  orderId   String
+  productId String
+  quantity  Int                             // Quantité : 2
+  price     Float                           // Prix unitaire au moment de l'achat : 12.50
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// =============================================================
+// 10. EXPENSE — Les dépenses de l'établissement
+// =============================================================
+// Tout ce que l'établissement dépense (achat fournisseur,
+// réparation, fournitures...) est enregistré ici et rattaché
+// au cycle du jour pour les rapports journaliers.
+
+model Expense {
+  id          String   @id @default(uuid())
+  tenantId    String
+  cycleId     String
+  amount      Float                        // Montant dépensé
+  description String                       // Ex : "Achat légumes marché"
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  cycle  Cycle  @relation(fields: [cycleId], references: [id])
+}
+
+// =============================================================
+// 11. PAYMENT — L'enregistrement du paiement d'une commande
+// =============================================================
+// Une commande peut avoir plusieurs paiements
+// (paiement fractionné, ex : moitié cash + moitié mobile money)
+// Méthodes adaptées au contexte Afrique de l'Ouest :
+//   CASH, CARD (TPE), MOBILE_MONEY (Orange Money, Wave, MTN...)
+
+model Payment {
+  id        String        @id @default(uuid())
+  tenantId  String
+  orderId   String
+  method    PaymentMethod
+  amount    Float
+  createdAt DateTime      @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentMethod {
+  CASH          // Espèces
+  CARD          // Carte bancaire
+  MOBILE_MONEY  // Orange Money, Wave, MTN, etc.
+}
+
+// =============================================================
+// 12. SUBSCRIPTION — L'abonnement SaaS de l'établissement
+// =============================================================
+// C'est le cœur du business SaaS.
+// FREE = accès limité (ex : 50 commandes/mois)
+// PRO = accès étendu
+// BUSINESS = accès complet + multi-utilisateurs
+// Si status = SUSPENDED → l'établissement perd l'accès
+
+model Subscription {
+  id        String             @id @default(uuid())
+  tenantId  String             @unique               // Un seul abo par établissement
+  plan      SubscriptionPlan   @default(FREE)
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  expiresAt DateTime                                 // Date d'expiration
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+enum SubscriptionPlan {
+  FREE      // Gratuit — fonctionnalités limitées
+  PRO       // Intermédiaire
+  BUSINESS  // Complet
+}
+
+enum SubscriptionStatus {
+  ACTIVE     // Actif — accès normal
+  SUSPENDED  // Suspendu — paiement en retard
+  EXPIRED    // Expiré
+}
+
+// =============================================================
+// 13. NOTIFICATION — Alertes système pour l'établissement
+// =============================================================
+// Exemples de notifications automatiques :
+// - "Stock de Coca-Cola faible (2 restants)"
+// - "Nouvelle commande Table 5"
+// - "Abonnement expire dans 3 jours"
+
+model Notification {
+  id        String   @id @default(uuid())
+  tenantId  String
+  title     String                         // Ex : "Stock faible"
+  message   String                         // Ex : "Coca-Cola : 2 unités restantes"
+  isRead    Boolean  @default(false)       // Lue ou non
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
