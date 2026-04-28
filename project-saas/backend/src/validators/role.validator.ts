@@ -58,7 +58,7 @@ export const createRoleSchema = z.object({
         .trim()
         .toUpperCase(),
     
-    permssion : z 
+    permissions : z 
         .array(permissionsSchema)
         .min(1, "Un role doit avoir au moins une permission")
         .refine(
@@ -68,7 +68,8 @@ export const createRoleSchema = z.object({
 })
 
 // mettre a jour un role 
-export const updateRoleSchema = createRoleSchema.partial();
+export const updateRoleSchema = createRoleSchema.partial()
+
 
 // Params de route : /roles/:id
 export const roleParamsSchema = z.object({

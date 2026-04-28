@@ -38,6 +38,8 @@ model Tenant {
   payments      Payment[]
   notifications Notification[]
   tables Table[]
+  reports Report[]
+  statistics    Statistic[] // Statistiques générées pour cet établissement
   subscription  Subscription?  // Un seul abonnement par établissement
 }
 
@@ -59,6 +61,7 @@ model User {
   id        String   @id @default(uuid())
   tenantId  String                          // Appartient à quel établissement
   email     String   @unique  // Email de connexion (unique global)
+  phone     String?           // Numéro de téléphone
   password  String            // Mot de passe doit etre hashe
   role      UserRole @default(MANAGER)      // ADMIN = propriétaire, MANAGER = gérant
   createdAt DateTime @default(now())
@@ -67,8 +70,9 @@ model User {
 }
 
 enum UserRole {
-  ADMIN    // Propriétaire — accès total
-  MANAGER  // Gérant — accès limité
+  SUPERADMIN // Administrateur du système SaaS
+  ADMIN    // Propriétaire — accès total à l'établissement
+  MANAGER  // Gérant — accès limité à l'établissement
 }
 
 
@@ -102,8 +106,9 @@ model Staff {
   tenantId  String
   roleId    String                     // Quel rôle a cet employé
   name      String                     // Ex : "Jean-Marc"
-  pinHash   String                     // PIN hashé avec bcrypt
-  createdAt DateTime @default(now())
+  identifier String   @unique                // Identifiant unique global (ex: JM01, BISTROT_JEAN)
+  pinHash    String                     // PIN hashé avec bcrypt
+  createdAt  DateTime @default(now())
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   role   Role   @relation(fields: [roleId], references: [id])
@@ -150,11 +155,32 @@ model Product {
   stock       Int      @default(0)       // Stock actuel : 50
   minStock    Int      @default(5)       // Alerte si stock < 5
   isActive    Boolean  @default(true)    // false = retiré du menu sans suppression
+  unit        String?  @default("unité") // Ex : "plat", "bouteille", "kg"
+  imageUrl    String?                    // Image du produit (upload local ou url)
+  colorCode   String?                    // Code couleur Hex pour le template de la carte
   createdAt   DateTime @default(now())
 
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   category   Category    @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
+}
+
+
+// Table report 
+model Report {
+  id        String   @id @default(uuid())
+  tenantId  String
+  cycleId   String @unique
+  totalRevenu Float
+  totalExpenses Float
+  netProfit Float
+  cashDifference Float
+  paymentByMethod Json
+  createdAt DateTime @default(now())
+
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  cycle  Cycle  @relation(fields: [cycleId], references: [id]) // un rapport pour un cycle
 }
 
 // =============================================================
@@ -172,9 +198,15 @@ model Cycle {
   closedAt  DateTime?                     // Heure de fermeture (null si encore ouvert)
   status    CycleStatus @default(OPEN)
 
+  openingCash  Float? @default(0)
+  closingCash  Float? @default(0)
+
+  note       String? @default("")
+  
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   orders   Order[]                        // Toutes les commandes de cette session
   expenses Expense[]                      // Toutes les dépenses de cette session
+  report   Report?                       // le rapport de la journée
 }
 
 enum CycleStatus {
@@ -216,22 +248,24 @@ model Order {
   id          String      @id @default(uuid())
   tenantId    String
   cycleId     String                         // Rattachée à la session du jour
-  tableId   String                         // Ex : "Table 3"
+  tableId   String?                        // Ex : "Table 3" (Optionnel pour vente emportée)
   status      OrderStatus @default(PENDING)
   totalAmount Float       @default(0)        // Total calculé automatiquement
   createdAt   DateTime    @default(now())
 
   tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   cycle      Cycle       @relation(fields: [cycleId], references: [id])
-  table      Table       @relation(fields: [tableId], references: [id])
+  table      Table?      @relation(fields: [tableId], references: [id])
   items      OrderItem[]
   payments   Payment[] 
 }
 
+
+
 enum OrderStatus {
-  PENDING   // En attente
-  ACCEPTED  // Acceptée en cuisine
-  READY     // Prête à servir
+  PENDING   // En attente (Client)
+  VALIDATED // Validée (Staff)
+  REJECTED  // Rejetée
   PAID      // Payée
 }
 
@@ -268,11 +302,27 @@ model Expense {
   cycleId     String
   amount      Float                        // Montant dépensé
   description String                       // Ex : "Achat légumes marché"
+  imageUrl    String?                      // Photo du reçu / justificatif
   createdAt   DateTime @default(now())
+  category    ExpenseCategory             // Catégorie de la dépense
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   cycle  Cycle  @relation(fields: [cycleId], references: [id])
 }
+
+//enum pour les categories de depense
+
+enum ExpenseCategory {
+    SUPPLIES
+    MAINTENANCE
+    RENT
+    SALARY
+    UTILITIES
+    MARKETING
+    EQUIPEMENT
+    OTHER
+}
+
 
 // =============================================================
 // 11. PAYMENT — L'enregistrement du paiement d'une commande
@@ -312,8 +362,9 @@ enum PaymentMethod {
 model Subscription {
   id        String             @id @default(uuid())
   tenantId  String             @unique               // Un seul abo par établissement
-  plan      SubscriptionPlan   @default(FREE)
-  status    SubscriptionStatus @default(ACTIVE)
+  plan          SubscriptionPlan   @default(FREE)
+  pendingPlan   SubscriptionPlan?                    // Nouveau plan en attente de validation
+  status        SubscriptionStatus @default(ACTIVE)
   startedAt DateTime           @default(now())
   expiresAt DateTime                                 // Date d'expiration
 
@@ -328,6 +379,7 @@ enum SubscriptionPlan {
 
 enum SubscriptionStatus {
   ACTIVE     // Actif — accès normal
+  PENDING    // En attente de validation par le Super Admin
   SUSPENDED  // Suspendu — paiement en retard
   EXPIRED    // Expiré
 }
@@ -345,8 +397,54 @@ model Notification {
   tenantId  String
   title     String                         // Ex : "Stock faible"
   message   String                         // Ex : "Coca-Cola : 2 unités restantes"
+  category  String   @default("INFO")      // INFO, WARNING, SYSTEM, SUCCESS
   isRead    Boolean  @default(false)       // Lue ou non
   createdAt DateTime @default(now())
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================
+// 14. STATISTIC — Statistiques générées sur une période
+// =============================================================
+// Permet de sauvegarder des calculs statistiques générés sur une
+// période spécifique. La période est limitée selon l'abonnement du tenant :
+// FREE (max 2 jours), PRO (max 15 jours), BUSINESS (max 30 jours).
+// Ce modèle stocke les agrégations (revenus, bénéfices) et les produits les plus vendus
+// (topProducts en format JSON, incluant l'URL de l'image, nom, et quantité) pour
+// être affichés sur le frontend avec le bouton "Plus de détails".
+
+model Statistic {
+  id             String   @id @default(uuid()) // Identifiant unique de la statistique
+  tenantId       String                        // L'établissement auquel appartient cette statistique
+  startDate      DateTime                      // Date de début du calcul statistique
+  endDate        DateTime                      // Date de fin du calcul statistique
+  totalRevenue   Float                         // Revenu total généré (Total des ventes)
+  netProfit      Float                         // Bénéfice net généré (Revenus - Dépenses ou Coût de revient)
+  topProducts    Json                          // Liste des produits les plus vendus (stockée en JSON pour flexibilité, ex: [{ productId, name, imageUrl, quantitySold }])
+  createdAt      DateTime @default(now())      // Date et heure de la création de cet enregistrement
+
+  // Relation avec le modèle Tenant
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================
+// 15. PRODUCT MODELS — Modèles de produits (Système)
+// =============================================================
+model ProductModelCategory {
+  id       String         @id @default(uuid())
+  name     String         @unique
+  icon     String?        // Nom de l'icône React (ex: "FiCoffee")
+  imageUrl String?        // Image de la catégorie
+  models   ProductModel[]
+}
+
+model ProductModel {
+  id          String   @id @default(uuid())
+  categoryId  String
+  name        String
+  imageUrl    String?
+  unit        String   @default("unité")
+  
+  category ProductModelCategory @relation(fields: [categoryId], references: [id])
 }

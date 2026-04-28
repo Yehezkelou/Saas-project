@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middleware/validate.middleware";
-import { LoginSchema, registerSchema } from "../validators/Auth.validator";
+import { LoginSchema, registerSchema, StaffLoginSchema } from "../validators/Auth.validator";
 import { AuthController } from "../controller/auth.controller";
 import { requireAuth } from "../middleware/auth.middleware";
 
@@ -11,6 +11,8 @@ const authConroller = new AuthController()
 // route auth
 route.post("/register", validate(registerSchema), authConroller.RegisterController)
 route.post("/login", validate(LoginSchema), authConroller.LoginController)
+route.post("/system-login", validate(LoginSchema), authConroller.superAdminLogin)
+route.post("/staff-login", validate(StaffLoginSchema), authConroller.StaffLoginController)
 
 
 // route Protégée (token Obligatoir)

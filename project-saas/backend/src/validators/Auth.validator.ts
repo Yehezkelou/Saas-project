@@ -1,4 +1,4 @@
-import z, { date, email } from "zod";
+import z from "zod";
 import { BusinessTypeEnum } from "./shared.validator";
 
 
@@ -16,11 +16,11 @@ export const registerSchema = z.object({
         .toLowerCase()
         .trim(),
 
+    phone : z.string().optional(),
+
     password : z 
             .string()
-            .min(8, "mot de passe doit contenir au moin 8 caractere")
-            .regex(/[A-Z]/, "doit contenir au moin une majuscule")
-            .regex(/[0-9]/, "doit contenir au moin un chiffre"),
+            .min(8, "mot de passe doit contenir au moin 8 caractere"),
 
     confirmPassword : z.string(),
 
@@ -52,11 +52,11 @@ export const LoginSchema = z.object({
 
 // Schema type zod pour la connexion des staff
 export const StaffLoginSchema = z.object({
-    staffId : z.uuid("identifiant invalide"),
+    identifier : z.string().min(1, "identifiant requis"),
     pin : z
         .string()
         .length(4)
-        .regex(/^\d{4}$/, "le mot de passe doit contenir que des chiffres")
+        .regex(/^\d{4}$/, "le code PIN doit contenir 4 chiffres")
 })
 
 

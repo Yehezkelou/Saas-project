@@ -19,9 +19,7 @@ export const NotificationTypeEnum = z.enum([
 // Creer une notification (usage interne / service)
 
 export const createNotificationSchema = z.object({
-    tenantId : uuidSchema,
 
-    type : NotificationTypeEnum,
 
     title : z 
         .string()
@@ -33,7 +31,9 @@ export const createNotificationSchema = z.object({
         .string()
         .min(5, "Le message doit faire au moins 5 carateres")
         .max(500, "Le messag ne peut pas depasser 500 caractéres")
-        .trim()
+        .trim(),
+
+    category : z.string().optional()
 })
 
 
@@ -62,3 +62,4 @@ export const listNotificationQuerySchema = PaginationSchema.extend({
 export type NotificationType = z.infer<typeof NotificationTypeEnum>;
 export type createNotificationInput = z.infer<typeof createNotificationSchema>;
 export type listeNotificationQuery = z.infer<typeof listNotificationQuerySchema>;
+export type markNotificationReadInput = z.infer<typeof markNotificationReadSchema>;

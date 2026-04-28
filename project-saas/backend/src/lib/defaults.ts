@@ -15,7 +15,7 @@ export type Role = {
 
 export function getDefaultRoles(businessType : BusinessType): Role[]{
     const BASE_PERMISSIONS = [
-        "VEIW_ORDERS",
+        "VIEW_ORDERS",
         "VIEW_PRODUCTS",
         "VIEW_STOCKS"
     ];
@@ -34,7 +34,7 @@ export function getDefaultRoles(businessType : BusinessType): Role[]{
             },
             {
                 name : "CAISSIER",
-                permissions : [...BASE_PERMISSIONS, "PROCESS_PAYEMENT", "VIEW_PAYEMENTS", "OPEN_CYLCE", "CLOSE_CYCLE", "CREATE_EXPENSE"]
+                permissions : [...BASE_PERMISSIONS, "PROCESS_PAYEMENT", "VIEW_PAYEMENTS", "OPEN_CYCLE", "CLOSE_CYCLE", "CREATE_EXPENSE"]
             }
         ],
 
@@ -84,7 +84,7 @@ export function getDefaultSubscription(){
     expiresAt.setDate(expiresAt.getDate() + 30); // +30 jours
     return {
         plan : "FREE" as const,
-        status : "ACTIVE" as const,
+        status : "PENDING" as const,
         expiresAt
     }
 }

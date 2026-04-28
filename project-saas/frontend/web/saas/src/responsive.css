@@ -1,0 +1,179 @@
+/* responsive.css - Definitions des breakpoints et utilitaires responsives */
+
+:root {
+  /* Breakpoints definitions */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+
+  /* Spacing adaptatif */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  --page-padding: clamp(16px, 5vw, 40px);
+  --content-max-width: 1440px;
+  --nav-bottom-spacing: 0px;
+}
+
+/* Base Utility for Floating Action Button */
+.fab {
+  display: none; /* Hidden on desktop by default */
+  position: fixed;
+  bottom: 84px;
+  right: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--color-primary), #FF8C5A);
+  color: white;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab:active {
+  transform: scale(0.9) rotate(-5deg);
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+.fab::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 26px;
+  background: var(--color-primary);
+  opacity: 0.2;
+  z-index: -1;
+  animation: fab-pulse 2s infinite;
+}
+
+@keyframes fab-pulse {
+  0% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.1); opacity: 0.1; }
+  100% { transform: scale(1); opacity: 0.2; }
+}
+
+/* Visibility Utilities Defaults */
+.show-mobile, .show-tablet, .flex-mobile { display: none !important; }
+
+/* --- Mobiles (< 768px) --- */
+@media (max-width: 767px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  .flex-mobile { display: flex !important; }
+  .flex-responsive { flex-direction: column !important; }
+  
+  .stack-mobile {
+    flex-direction: column !important;
+  }
+  
+  .full-width-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .p-page { padding: 16px !important; }
+  
+  /* Ajustements de texte pour mobile */
+  h1 { font-size: 28px !important; letter-spacing: -0.5px !important; }
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 18px !important; }
+
+  :root {
+    --nav-bottom-spacing: 70px;
+  }
+
+  .fab {
+    display: flex;
+  }
+
+  .bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-radius: 24px 24px 0 0;
+    padding: 24px;
+    z-index: 1000;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+  }
+  
+  .bottom-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+  }
+}
+
+/* --- Tablettes (768px - 1024px) --- */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hide-tablet { display: none !important; }
+  .show-tablet { display: block !important; }
+  
+  .p-page { padding: 24px !important; }
+
+  .fab {
+    display: flex;
+    bottom: 30px; /* Tablet often has sidebar, no bottom nav */
+  }
+
+  /* Sidebar réduit sur tablette */
+  .sidebar {
+    width: 80px !important;
+  }
+  
+  .sidebar span {
+    display: none !important;
+  }
+  
+  .sidebar .nav-item {
+    justify-content: center !important;
+    padding: 12px !important;
+  }
+
+  .main-content {
+    margin-left: 80px !important;
+  }
+}
+
+/* Grilles adaptatives */
+.responsive-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+@media (max-width: 767px) {
+  .responsive-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cartes mobiles pour remplacer les tableaux */
+  .mobile-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .mobile-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1200px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

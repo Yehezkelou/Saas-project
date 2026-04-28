@@ -3,6 +3,7 @@
 
 import type { Request, Response, NextFunction } from "express";
 import z from "zod";
+import logger from "../lib/logger";
 
 
 // source dit ou chercher les donnéees a valider
@@ -19,6 +20,8 @@ export function validate(
         const result = schema.safeParse(req[source])
 
         if(!result.success){
+            
+            logger.warn(`Erreur de validation sur ${source}: ${JSON.stringify(result.error.format())}`);
             
             const errors = result.error.issues.reduce((acc, err) => {
                 // recuperation du champ

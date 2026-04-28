@@ -23,8 +23,7 @@ const orderItemInputSchema = z.object({
 // creer un commande 
 export const createOrderSchema = z.object({
 
-    cylceId: uuidSchema,
-    tableId: uuidSchema,
+    tableId: uuidSchema.optional(),
 
     items : z 
         .array(orderItemInputSchema)
@@ -79,7 +78,7 @@ export const orderItemParamsSchema = z.object({
 export const listOrderQuerySchema = PaginationSchema.extend({
     cycleId : uuidSchema.optional(),
     status : OrderStatusEnum.optional(),
-    tableId : uuidSchema,
+    tableId : uuidSchema.optional(),
 
     // Filtrer par periode 
     from: z.coerce.date().optional(),

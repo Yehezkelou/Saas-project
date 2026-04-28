@@ -22,7 +22,7 @@ export async function requireActiveTenant(req: Request, res: Response, next: Nex
             if(!tenantId){
                 return res.status(401).json({
                     success : false,
-                    messsage : "Tenant non identifié"
+                    message : "Tenant non identifié"
                 })
             }
 

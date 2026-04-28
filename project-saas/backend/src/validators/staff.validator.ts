@@ -17,7 +17,12 @@ export const createStaffSchema = z.object({
     pin : z
         .string()
         .length(4, "le PIN doit faire exactement 4 chiffre")
-        .regex(/^\d{4}$/, "doit contenir que des chiffres")
+        .regex(/^\d{4}$/, "doit contenir que des chiffres"),
+    
+    identifier : z
+        .string()
+        .min(2, "L'identifiant doit faire au moins 2 caractères")
+        .trim(),
         
 })
 
@@ -31,13 +36,24 @@ export const updateStaffSchema  = z.object({
         .trim()
         .optional(),
 
-    roleId : uuidSchema
-    
+    identifier : z
+        .string()
+        .min(2, "L'identifiant doit faire au moins 2 caractères")
+        .trim()
+        .optional(),
+
+    roleId : uuidSchema.optional(),
+    pin : z
+        .string()
+        .length(4, "le PIN doit faire exactement 4 chiffre")
+        .regex(/^\d{4}$/, "doit contenir que des chiffres")
+        .optional(),
 })
 
 
 // Changer le code pin d'un employer
 export const changeStaffPinSchema = z.object({
+    staffId : uuidSchema.optional(),
     currentPin : z
         .string()
         .length(4, "le code PIN doit exactement faire 4 chiffres")
@@ -55,6 +71,7 @@ export const changeStaffPinSchema = z.object({
 .refine(
     (data) => data.newPin !== data.currentPin
 )
+
 
 
 // Params de route  : /staff/:id

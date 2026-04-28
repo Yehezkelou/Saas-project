@@ -43,14 +43,37 @@ export function requireAuth(req: Request, res : Response, next: NextFunction) {
     }
 }
 
-// Midlleware verifie qu'on est bien ADMIN
+// Midlleware verifie qu'on est bien ADMIN ou SUPERADMIN
 export function requireAdmin(req : Request, res : Response, next: NextFunction){
-    if(req.user?.role !== "ADMIN"){
+    if(req.user?.role !== "ADMIN" && req.user?.role !== "SUPERADMIN"){
         return res.status(403).json({
             success: false,
             message : "Accés refusé - role ADMIN requis"
         })
     }
+    next();
+}
+
+// Middleware verifie qu'on est bien SUPERADMIN (Le gérant du SaaS)
+export function requireSuperAdmin(req : Request, res : Response, next: NextFunction){
+    if(req.user?.role !== "SUPERADMIN"){
+        return res.status(403).json({
+            success: false,
+            message : "Accés réservé à l'administrateur système"
+        })
+    }
+    next();
+}
+
+// Middleware verifie qu'on est bien STAFF (ou ADMIN/MANAGER car ils ont tous les droits)
+export function requireStaff(req : Request, res : Response, next: NextFunction){
+    if(req.user?.role !== "STAFF" && req.user?.role !== "ADMIN" && req.user?.role !== "MANAGER"){
+        return res.status(403).json({
+            success: false,
+            message : "Accés refusé - role STAFF requis"
+        })
+    }
+    next();
 }
 
 

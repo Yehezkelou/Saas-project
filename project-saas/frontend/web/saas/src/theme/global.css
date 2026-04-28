@@ -1,0 +1,236 @@
+/* ============================================================
+   src/theme/global.css
+   Design system complet — variables CSS + reset + utilitaires
+   ============================================================ */
+
+:root {
+  /* Couleurs principales */
+  --color-primary:        #FF6B35;
+  --color-primary-light:  #FF8C5A;
+  --color-primary-dark:   #E55520;
+  --color-primary-faint:  #FFF0EB;
+
+  /* Succès */
+  --color-success:        #2ECC71;
+  --color-success-light:  #A8F0C6;
+  --color-success-faint:  #F0FFF6;
+
+  /* Danger */
+  --color-danger:         #E74C3C;
+  --color-danger-faint:   #FDF0EE;
+
+  /* Statuts commandes */
+  --color-pending:        #F39C12;
+  --color-accepted:       #3498DB;
+  --color-ready:          #2ECC71;
+  --color-paid:           #95A5A6;
+
+  /* Neutres */
+  --color-bg:             #F8F6F3;
+  --color-surface:        #FFFFFF;
+  --color-border:         #E8E3DD;
+  --color-border-light:   #F0EDE9;
+
+  /* Texte */
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #6B6560;
+  --color-text-tertiary:  #A09890;
+  --color-white:          #FFFFFF;
+
+  /* Espacement */
+  --sp-xs:    4px;
+  --sp-sm:    8px;
+  --sp-md:    12px;
+  --sp-base:  16px;
+  --sp-lg:    20px;
+  --sp-xl:    24px;
+  --sp-xxl:   32px;
+  --sp-xxxl:  48px;
+
+  /* Rayons */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* Ombres */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg:  0 10px 15px rgba(0,0,0,0.10), 0 4px 6px rgba(0,0,0,0.05);
+
+  /* Typographie */
+  --font:        "Inter", system-ui, sans-serif;
+  --text-xs:     11px;
+  --text-sm:     13px;
+  --text-base:   15px;
+  --text-md:     17px;
+  --text-lg:     19px;
+  --text-xl:     22px;
+  --text-xxl:    28px;
+  --text-xxxl:   36px;
+
+  /* Layout */
+  --max-width:   1280px;
+  --sidebar-w:   260px;
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+input, textarea, select {
+  font-family: var(--font);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Utilitaires ────────────────────────────────────────── */
+.flex        { display: flex; }
+.flex-col    { display: flex; flex-direction: column; }
+.flex-1      { flex: 1; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center  { justify-content: center; }
+.gap-sm      { gap: var(--sp-sm); }
+.gap-md      { gap: var(--sp-md); }
+.gap-base    { gap: var(--sp-base); }
+.gap-lg      { gap: var(--sp-lg); }
+.text-center { text-align: center; }
+.w-full      { width: 100%; }
+.h-full      { height: 100%; }
+
+/* ── Scrollbar custom ───────────────────────────────────── */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: var(--color-text-tertiary); }
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn   { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes pulse    { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes spin     { to { transform: rotate(360deg); } }
+@keyframes slideUp  { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.fade-in     { animation: fadeIn .2s ease-out both; }
+.pulse       { animation: pulse 2s ease-in-out infinite; }
+
+/* ── Layout Shell ───────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .hide-mobile { display: none; }
+  .p-responsive { padding: var(--sp-base) !important; }
+  .grid-responsive { grid-template-columns: 1fr !important; }
+  .flex-responsive { flex-direction: column !important; }
+  .show-mobile-flex { display: flex !important; }
+  .hide-desktop { display: block !important; }
+}
+@media (min-width: 769px) {
+  .hide-desktop { display: none !important; }
+  .show-mobile-flex { display: none !important; }
+}
+
+.responsive-container {
+  padding: clamp(var(--sp-base), 4vw, var(--sp-xxl));
+}
+
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 100%, 400px), 1fr));
+  gap: var(--sp-lg);
+}
+
+.pos-cart-container {
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .pos-cart-hidden {
+    transform: translateX(100%);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+  }
+  .pos-cart-visible {
+    transform: translateX(0);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  @media (max-width: 768px) {
+    .reports-sidebar {
+      width: 100%;
+      max-height: 250px;
+    }
+    .reports-detail-container {
+      padding: 20px;
+    }
+  }
+}
+
+/* Reports & Dashboard Utilities (Global) */
+.reports-sidebar {
+  width: 320px;
+}
+.reports-detail-container {
+  padding: 2rem;
+}
+.grid-2col-responsive {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+}
+
+@media (max-width: 992px) {
+  .grid-2col-responsive {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,6 @@
 
 
-import z, { optional } from "zod"
+import z from "zod"
 import { PaginationSchema, uuidSchema } from "./shared.validator"
 
 
@@ -10,6 +10,7 @@ import { PaginationSchema, uuidSchema } from "./shared.validator"
 export const ExpenseCategoryEnum = z.enum([
     "SUPPLIES",     // Fornitures / matieres premieres
     "MAINTENANCE",  // Réparation / entretien 
+    "RENT",
     "SALARY",       // Salaires / primes
     "UTILITIES",    // Electricité, eau , internet
     "MARKETING",    // "Publicité, flyers, réseaux sociaux"
@@ -22,7 +23,7 @@ export const ExpenseCategoryEnum = z.enum([
 export const createExpenseSchema = z.object({
     cycleId : uuidSchema, // Ratachée a la sessions du jour
 
-    amout : z
+    amount : z
         .number("le montant doit etre un nombre")
         .positive("Le montant doit etre positive")
         .multipleOf(0.01, "Maximum 2 décimales"),
@@ -32,7 +33,8 @@ export const createExpenseSchema = z.object({
         .min(3, "La description doit faire au moins 3 carateres")
         .max(300)
         .trim(),
-
+    
+    imageUrl : z.string().optional(),
     category : ExpenseCategoryEnum.default("OTHER")
 })
 

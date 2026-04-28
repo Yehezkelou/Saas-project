@@ -13,6 +13,7 @@ export const BusinessTypeEnum = z.enum([
 
 // Shema type zod pour les Role utilisateur
 export const UserRoleEnum = z.enum([
+    "SUPERADMIN",
     "ADMIN",
     "MANAGER"
 ])
@@ -34,9 +35,9 @@ export const CycleStatusEnum = z.enum([
 
 // Schema type zod pour les status des commande
 export const OrderStatusEnum = z.enum([
-    'PENDIND',
-    'ACCEPTED',
-    'READY',
+    'PENDING',
+    'VALIDATED',
+    'REJECTED',
     'PAID'
 ])
 
@@ -60,6 +61,7 @@ export const SubscriptionPlanEnum = z.enum([
 //Schema zod pour les status de Subscrition
 export const SubscriptionStatusEnum = z.enum([
     'ACTIVE',
+    'PENDING',
     'SUSPENDED',
     'EXPIRED'
 ])
