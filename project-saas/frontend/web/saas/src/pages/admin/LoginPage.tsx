@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthApi } from "../../api";
 import { useAuthStore } from "../../stores";
 import { Button, Input, showToast } from "../../components/ui";
 import { LogoOrbit, GlassyBackground } from "../../components/animations/SceneAnimations";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return width;
+}
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const setAuth  = useAuthStore((s) => s.setAuth);
+  const navigate   = useNavigate();
+  const setAuth    = useAuthStore((s) => s.setAuth);
+  const windowWidth = useWindowWidth();
+
+  const isMobile  = windowWidth < 480;
+  const isTablet  = windowWidth >= 480 && windowWidth < 1024;
+  const isDesktop = windowWidth >= 1024;
+
+  // Taille du logo adaptée
+  const logoSize = isMobile ? 160 : isTablet ? 220 : 300;
 
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
@@ -31,67 +50,98 @@ export function LoginPage() {
 
   return (
     <div style={{
-      minHeight: "100vh", display: "flex",
-      background: "#0c0c0c", color: "#fff",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: isDesktop ? "row" : "column",
+      background: "#0c0c0c",
+      color: "#fff",
       fontFamily: "var(--font)",
+      overflowY: "auto",
     }}>
       <GlassyBackground />
 
-      {/* Panneau gauche : Animation LogoOrbit */}
-      <div className="hide-mobile" style={{
-        flex: 1.2,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: 48, position: "relative",
+      {/* Section Logo */}
+      <div style={{
+        flex: isDesktop ? 1.2 : "none",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: isDesktop ? "48px" : isMobile ? "28px 24px 8px" : "36px 24px 12px",
+        position: "relative",
+        minHeight: isDesktop ? "100vh" : "auto",
       }}>
-        <LogoOrbit />
-        <div style={{ marginTop: -20, textAlign: "center", zIndex: 5 }}>
-          <p style={{ color: "rgba(255,255,255,.6)", fontSize: "var(--text-md)", maxWidth: 400, lineHeight: 1.6 }}>
+        <LogoOrbit size={logoSize} />
+
+        {/* Tagline — desktop uniquement */}
+        {isDesktop && (
+          <p style={{
+            color: "rgba(255,255,255,.55)",
+            fontSize: "15px",
+            maxWidth: 380,
+            lineHeight: 1.7,
+            textAlign: "center",
+            marginTop: 8,
+            zIndex: 5,
+          }}>
             La plateforme SaaS nouvelle génération pour piloter votre établissement avec précision et élégance.
           </p>
-        </div>
+        )}
       </div>
 
-      {/* Formulaire de Connexion */}
-      <div style={{
-        flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24, zIndex: 10,
-      }}>
-        <div style={{ 
-          width: "100%", maxWidth: 420,
-          background: "rgba(255, 255, 255, 0.03)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          borderRadius: "var(--radius-xl)",
-          padding: "40px 32px",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-        }}>
-          {/* Logo mobile visible uniquement sur petit écran */}
-          <div className="hide-desktop" style={{ textAlign: "center", marginBottom: 32 }}>
-            <h1 style={{ fontSize: "var(--text-xxxl)", fontWeight: 900, marginBottom: 8, letterSpacing: "-0.05em" }}>Saas</h1>
-          </div>
+      {/* Séparateur vertical desktop */}
+      {isDesktop && (
+        <div style={{
+          width: 1,
+          background: "rgba(255,255,255,0.05)",
+          alignSelf: "stretch",
+        }} />
+      )}
 
-          <h2 style={{ fontSize: "var(--text-xxl)", fontWeight: 700, marginBottom: 8 }}>Connexion</h2>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 32, fontSize: "var(--text-sm)" }}>
+      {/* Formulaire */}
+      <div style={{
+        flex: isDesktop ? 1 : "none",
+        display: "flex",
+        alignItems: isDesktop ? "center" : "flex-start",
+        justifyContent: "center",
+        padding: isDesktop ? "48px 40px" : isMobile ? "8px 16px 40px" : "16px 32px 48px",
+        zIndex: 10,
+      }}>
+        <div style={{
+          width: "100%",
+          maxWidth: 420,
+          background: "rgba(255,255,255,0.03)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: "var(--radius-xl)",
+          padding: isMobile ? "24px 20px" : "36px 32px",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+        }}>
+          <h2 style={{
+            fontSize: isMobile ? "22px" : "28px",
+            fontWeight: 700,
+            marginBottom: 6,
+          }}>
+            Connexion
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: 28, fontSize: "14px" }}>
             Accédez à votre espace administrateur
           </p>
 
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div>
-              <Input
-                label="Email professionnel"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nom@etablissement.com"
-                autoComplete="email"
-                required
-                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
-              />
-            </div>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <Input
+              label="Email professionnel"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="nom@etablissement.com"
+              autoComplete="email"
+              required
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
+            />
 
             <div>
-              <label style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "rgba(255,255,255,0.6)", display: "block", marginBottom: 8 }}>
+              <label style={{ fontSize: "14px", fontWeight: 500, color: "rgba(255,255,255,0.6)", display: "block", marginBottom: 8 }}>
                 Mot de passe
               </label>
               <div style={{ position: "relative" }}>
@@ -103,15 +153,17 @@ export function LoginPage() {
                   autoComplete="current-password"
                   required
                   className="input-field"
-                  style={{ 
-                    paddingRight: 44, 
-                    background: "rgba(255,255,255,0.05)", 
-                    border: "1px solid rgba(255,255,255,0.1)", 
+                  style={{
+                    paddingRight: 44,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
                     color: "#fff",
                     width: "100%",
                     height: 44,
                     borderRadius: "var(--radius-md)",
-                    padding: "10px 14px",
+                    padding: "10px 44px 10px 14px",
+                    fontSize: "15px",
+                    outline: "none",
                   }}
                 />
                 <button
@@ -119,21 +171,21 @@ export function LoginPage() {
                   onClick={() => setShowPwd((v) => !v)}
                   style={{
                     position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                    background: "none", border: "none", cursor: "pointer", fontSize: 18, 
-                    color: "rgba(255,255,255,0.4)"
+                    background: "none", border: "none", cursor: "pointer", fontSize: 18,
+                    color: "rgba(255,255,255,0.4)",
                   }}
                 >
-                  {showPwd ? "🙈" : "👁️"}
+                  {showPwd ? <FiEyeOff /> : <FiEye />}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" loading={loading} fullWidth size="lg" style={{ marginTop: 8 }}>
+            <Button type="submit" loading={loading} fullWidth size="lg" style={{ marginTop: 4, height: 48 }}>
               Se connecter
             </Button>
           </form>
 
-          <p style={{ textAlign: "center", marginTop: 28, fontSize: "var(--text-sm)", color: "rgba(255,255,255,0.4)" }}>
+          <p style={{ textAlign: "center", marginTop: 24, fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>
             Pas encore de compte ?{" "}
             <Link to="/register" style={{ color: "var(--color-primary)", fontWeight: 600, textDecoration: "none" }}>
               Créer un établissement
@@ -141,23 +193,23 @@ export function LoginPage() {
           </p>
 
           {/* Accès POS */}
-          <div style={{ 
-            marginTop: 32, padding: "16px", 
-            background: "rgba(255,255,255,0.02)", 
-            borderRadius: "var(--radius-lg)", 
-            border: "1px solid rgba(255,255,255,0.05)", 
-            textAlign: "center" 
+          <div style={{
+            marginTop: 24, padding: "14px 16px",
+            background: "rgba(255,255,255,0.02)",
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid rgba(255,255,255,0.05)",
+            textAlign: "center",
           }}>
-            <p style={{ fontSize: "var(--text-xs)", color: "rgba(255,255,255,0.4)", marginBottom: 8, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", marginBottom: 8, letterSpacing: "0.05em", textTransform: "uppercase" }}>
               Interface Opérationnelle
             </p>
             <button
               onClick={() => navigate("/pos")}
-              style={{ 
-                color: "#fff", fontWeight: 600, fontSize: "var(--text-sm)", 
-                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", 
+              style={{
+                color: "#fff", fontWeight: 600, fontSize: "14px",
+                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
                 cursor: "pointer", padding: "8px 16px", borderRadius: "var(--radius-md)",
-                width: "100%", transition: "all 0.2s"
+                width: "100%", transition: "all 0.2s",
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
               onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
@@ -170,3 +222,4 @@ export function LoginPage() {
     </div>
   );
 }
+

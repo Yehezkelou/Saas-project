@@ -15,7 +15,8 @@ export function PendingVerificationPage() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        style={{ maxWidth: 480, width: "100%", background: "#1C1C1E", borderRadius: "32px", padding: "48px", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center", position: "relative", zIndex: 1, boxShadow: "0 40px 80px rgba(0,0,0,0.4)" }}
+        className="pending-card"
+        style={{ maxWidth: 480, width: "100%", background: "#1C1C1E", borderRadius: "32px", padding: "clamp(24px, 8vw, 48px)", border: "1px solid rgba(255,255,255,0.05)", textAlign: "center", position: "relative", zIndex: 1, boxShadow: "0 40px 80px rgba(0,0,0,0.4)" }}
       >
         <div style={{ width: 80, height: 80, background: "rgba(243, 156, 18, 0.1)", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", color: "#F39C12", fontSize: 40 }}>
            <FiClock />

@@ -1,6 +1,4 @@
-import { PrismaClient } from '../../../backend/generated/prisma';
-
-const prisma = new PrismaClient();
+import prisma from "../../../../../../../../backend/src/lib/prisma"
 
 async function main() {
   const staff = await prisma.staff.findMany({

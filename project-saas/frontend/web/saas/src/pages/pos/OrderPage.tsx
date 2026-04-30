@@ -103,14 +103,17 @@ export function OrderPage() {
   if (loading) return <LoadingPage />;
 
   return (
-    <div style={{ height: "100vh", background: "#121214", color: "#fff", display: "flex", flexDirection: "column", fontFamily: "var(--font)", overflow: "hidden" }}>
+    <div className="pos-container" style={{ height: "100vh", background: "#121214", color: "#fff", display: "flex", flexDirection: "column", fontFamily: "var(--font)", overflow: "hidden" }}>
       {/* Header */}
-      <div style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10 }}>
+      <div className="pos-header" style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10 }}>
         <button onClick={() => navigate("/pos/tables")} style={{ background: "none", border: "none", color: "var(--color-primary)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: "15px" }}>
-          <FiArrowLeft size={18} /> Retour aux Tables
+          <FiArrowLeft size={18} /> <span className="hide-mobile">Retour</span>
         </button>
-        <h1 style={{ fontWeight: 800, fontSize: "20px", margin: 0, letterSpacing: "-0.5px" }}>Prise de Commande — {state?.tableName}</h1>
-        <div style={{ width: 140 }} /> {/* Equilibre header */}
+        <h1 style={{ fontWeight: 800, fontSize: "20px", margin: 0, letterSpacing: "-0.5px", textAlign: "center" }}>{state?.tableName}</h1>
+        <div style={{ width: 60 }} className="hide-mobile" /> {/* Equilibre header */}
+        <button className="hide-desktop" onClick={() => setShowCart(true)} style={{ background: "var(--color-primary)", border: "none", color: "#fff", padding: "8px 12px", borderRadius: "10px", fontWeight: 800, fontSize: "12px", display: "flex", alignItems: "center", gap: 6 }}>
+          <FiShoppingCart /> {cartItemsCount}
+        </button>
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden", position: "relative" }}>
@@ -141,7 +144,7 @@ export function OrderPage() {
           </div>
 
           {/* Grille Produits */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16, alignContent: "start", zIndex: 1 }}>
+          <div className="pos-grid" style={{ flex: 1, overflowY: "auto", padding: "24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16, alignContent: "start", zIndex: 1 }}>
             <AnimatePresence mode="popLayout">
               {filtered.map((p) => {
                 const qty = getQty(p.id);
@@ -158,7 +161,7 @@ export function OrderPage() {
                     style={{
                       background: isSelected ? "rgba(255,107,0,0.1)" : "rgba(255,255,255,0.02)",
                       border: `1px solid ${isSelected ? "rgba(255,107,0,0.4)" : "rgba(255,255,255,0.05)"}`,
-                      borderRadius: "20px", padding: "16px", cursor: "pointer", position: "relative",
+                      borderRadius: "20px", padding: "clamp(10px, 3vw, 16px)", cursor: "pointer", position: "relative",
                       display: "flex", flexDirection: "column", gap: 8, backdropFilter: "blur(10px)",
                       transition: "background 0.2s, border 0.2s"
                     }}
@@ -168,15 +171,15 @@ export function OrderPage() {
                         <img 
                           src={formatImageUrl(p.imageUrl)} 
                           alt={p.name} 
-                          style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: "12px", marginBottom: 12 }}
+                          style={{ width: "100%", height: "clamp(80px, 20vw, 120px)", objectFit: "cover", borderRadius: "12px", marginBottom: 8 }}
                         />
                       ) : (
-                        <div style={{ width: "100%", height: 120, background: "rgba(255,255,255,0.05)", borderRadius: "12px", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ width: "100%", height: "clamp(80px, 20vw, 120px)", background: "rgba(255,255,255,0.05)", borderRadius: "12px", marginBottom: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
                            <FiImage size={24} color="rgba(255,255,255,0.2)" />
                         </div>
                       )}
-                      <div style={{ fontWeight: 700, fontSize: "16px", color: isSelected ? "#fff" : "rgba(255,255,255,0.9)", lineHeight: 1.3, marginBottom: 4 }}>{p.name}</div>
-                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,.5)", fontWeight: 500 }}>Stock: {p.stock}</div>
+                      <div style={{ fontWeight: 700, fontSize: "clamp(13px, 3vw, 16px)", color: isSelected ? "#fff" : "rgba(255,255,255,0.9)", lineHeight: 1.3, marginBottom: 4 }}>{p.name}</div>
+                      <div className="hide-mobile" style={{ fontSize: "12px", color: "rgba(255,255,255,.5)", fontWeight: 500 }}>Stock: {p.stock}</div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
                       <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--color-primary)" }}>{formatPrice(p.price)}</span>
@@ -312,7 +315,7 @@ export function OrderPage() {
         onClick={() => setShowCart(true)}
         className="hide-desktop"
         style={{
-          position: "fixed", bottom: 24, right: 24,
+          position: "fixed", bottom: 84, right: 24,
           background: "var(--color-primary)", color: "#fff",
           width: 64, height: 64, borderRadius: "20px",
           display: "flex", alignItems: "center", justifyContent: "center",

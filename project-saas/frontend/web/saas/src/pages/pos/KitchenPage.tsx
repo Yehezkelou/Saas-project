@@ -66,7 +66,7 @@ export function KitchenPage() {
             </motion.div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: 20, alignContent: "start" }}>
+          <div className="kds-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: 20, alignContent: "start" }}>
             <AnimatePresence>
               {orders.map((order) => {
                 const mins = Math.floor((Date.now() - new Date(order.createdAt).getTime()) / 60000);
@@ -74,21 +74,22 @@ export function KitchenPage() {
                 const isPending = order.status === "PENDING";
                 
                 return (
-                  <motion.div 
-                    key={order.id} 
-                    layout
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }} 
-                    animate={{ opacity: 1, y: 0, scale: 1 }} 
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    style={{ 
-                      background: isUrgent ? "rgba(255,71,87,0.05)" : "rgba(255,255,255,0.03)", 
-                      borderRadius: "24px", 
-                      overflow: "hidden", 
-                      border: `1px solid ${isUrgent ? "rgba(255,71,87,0.3)" : "rgba(255,255,255,0.05)"}`, 
-                      backdropFilter: "blur(20px)",
-                      display: "flex", flexDirection: "column"
-                    }}
-                  >
+                    <motion.div 
+                      key={order.id} 
+                      layout
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }} 
+                      animate={{ opacity: 1, y: 0, scale: 1 }} 
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="kds-card"
+                      style={{ 
+                        background: isUrgent ? "rgba(255,71,87,0.05)" : "rgba(255,255,255,0.03)", 
+                        borderRadius: "24px", 
+                        overflow: "hidden", 
+                        border: `1px solid ${isUrgent ? "rgba(255,71,87,0.3)" : "rgba(255,255,255,0.05)"}`, 
+                        backdropFilter: "blur(20px)",
+                        display: "flex", flexDirection: "column"
+                      }}
+                    >
                     {/* Header Carte */}
                     <div style={{ background: isUrgent ? "rgba(255,71,87,0.1)" : "rgba(0,0,0,0.2)", borderBottom: `1px solid ${isUrgent ? "rgba(255,71,87,0.2)" : "rgba(255,255,255,0.05)"}`, padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

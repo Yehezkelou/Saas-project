@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useAuthStore, useTableStore, usePosStore } from "../stores";
 
-const BASE_URL = "http://192.168.100.16:3000/api/v1";
+const BASE_URL = "http://192.168.1.249:3000/api/v1";
 export const API_HOST = BASE_URL.replace("/api/v1", "");
 
 // ── Instance Axios ─────────────────────────────────────────

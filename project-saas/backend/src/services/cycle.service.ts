@@ -78,7 +78,6 @@ export class CycleService {
             where :{
                 id : cycleId,
                 tenantId,
-                // si le cycle est deja fermer on leve une erreur 
                 status : "OPEN"
             }
         })
@@ -89,7 +88,7 @@ export class CycleService {
             where : {
                 cycleId : cycleId,
                 tenantId,
-                status : {in : ["PENDING", "READY", "ACCEPTED"]}
+                status : {in : ["PENDING", "VALIDATED"]} // Statuts non payés
             }
         })
         if(pendingOrders > 0) throw new Error("HAS_UNPAID_ORDERS")
@@ -108,38 +107,44 @@ export class CycleService {
             })
         ])
 
-        const totalRevenu = payments.reduce((acc, p) => acc + (p._sum.amount ?? 0), 0)
-        const totalExpenses = expenses._sum.amount ?? 0
+        const totalRevenu = payments.reduce((acc, p) => acc + (p._sum.amount || 0), 0)
+        const totalExpenses = expenses._sum.amount || 0
         const netProfit = totalRevenu - totalExpenses
 
         // ecart de caisse difference entre ce qu'on devait avoir et ce qu'on a compté
-        const cashPayement = payments.find(p => p.method == "CASH")?._sum.amount ?? 0
-        const cashDifference = data.closingCash - ((cycle.openingCash ?? 0) + cashPayement)
+        const cashPayment = payments.find(p => p.method == "CASH")?._sum.amount || 0
+        const cashDifference = (data.closingCash || 0) - ((cycle.openingCash || 0) + cashPayment)
+
+        // On formate les payments pour le JSON pour s'assurer que c'est un objet pur
+        const paymentSummary = payments.map(p => ({
+            method: p.method,
+            amount: p._sum.amount || 0
+        }));
 
         // fermer le cycle avec le rapport
-        const close = await prisma.cycle.update({
+        const closedCycle = await prisma.cycle.update({
             where : {tenantId, id : cycleId},
             include: { report: true },
             data : {
                 status: "CLOSED",
                 closedAt : new Date(),
-                closingCash : data.closingCash,
-                note : data.notes!,
+                closingCash : data.closingCash || 0,
+                note : data.notes || "",
 
                 report : {
                     create : {
                         tenantId,
-                        totalRevenu : totalRevenu!,
-                        totalExpenses : totalExpenses!,
-                        netProfit : netProfit!,
-                        cashDifference : cashDifference!,
-                        paymentByMethod : payments!
+                        totalRevenu: totalRevenu || 0,
+                        totalExpenses: totalExpenses || 0,
+                        netProfit: netProfit || 0,
+                        cashDifference: cashDifference || 0,
+                        paymentByMethod: paymentSummary as any
                     }
                 }
             }
         })
 
-        return {cycle : close, report : close.report}
+        return {cycle : closedCycle, report : closedCycle.report}
     }
 
 

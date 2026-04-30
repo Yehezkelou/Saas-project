@@ -103,34 +103,46 @@ export function TablesPage() {
       <div style={{ position: "absolute", top: "-10%", left: "20%", width: "60%", height: "40%", background: "radial-gradient(ellipse, rgba(255,107,0,0.1) 0%, rgba(18,18,20,0) 70%)", filter: "blur(80px)", zIndex: 0, pointerEvents: "none" }} />
 
       {/* Header */}
-      <div style={{ zIndex: 10, background: "rgba(255,255,255,0.02)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "16px clamp(16px, 4vw, 32px)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 48, height: 48, borderRadius: "16px", background: "var(--color-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: 800, boxShadow: "0 4px 20px rgba(255,107,0,0.4)" }}>
+      <div style={{ zIndex: 10, background: "rgba(255,255,255,0.02)", backdropFilter: "blur(40px)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "12px clamp(12px, 4vw, 32px)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "nowrap" }}>
+        {/* Profil Staff */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: "0 0 auto" }}>
+          <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: "14px", background: "var(--color-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", fontWeight: 800, boxShadow: "0 4px 16px rgba(255,107,0,0.35)" }}>
             {staff?.name?.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <h1 style={{ fontWeight: 800, fontSize: "18px", margin: 0 }}>{staff?.name?.split(" ")[0]}</h1>
-            <p style={{ fontSize: "12px", margin: "2px 0 0 0", color: "rgba(255,255,255,.5)", fontWeight: 600 }}>{staff?.role?.name || "Espace Staff"}</p>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontWeight: 800, fontSize: "clamp(14px, 3vw, 18px)", margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{staff?.name?.split(" ")[0]}</h1>
+            <p style={{ fontSize: "11px", margin: 0, color: "rgba(255,255,255,.5)", fontWeight: 600, whiteSpace: "nowrap" }}>{staff?.role?.name || "Espace Staff"}</p>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "nowrap", overflowX: "auto", paddingBottom: 4, msOverflowStyle: "none", scrollbarWidth: "none" }}>
+        {/* Desktop : tous les boutons d'action */}
+        <div className="hide-mobile" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "nowrap", overflowX: "auto", scrollbarWidth: "none" }}>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate("/pos/kitchen")} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", padding: "10px 16px", borderRadius: "14px", display: "flex", gap: 8, alignItems: "center", fontWeight: 700, cursor: "pointer", fontSize: "14px", backdropFilter: "blur(10px)", whiteSpace: "nowrap" }}>
-            <FiMonitor size={18} color="var(--color-primary)" /> <span className="hide-mobile">Suivi</span>
+            <FiMonitor size={18} color="var(--color-primary)" /> Suivi
           </motion.button>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate("/pos/order/direct", { state: { tableName: "Vente Directe" } })} style={{ background: "var(--color-primary)", border: "none", color: "#fff", padding: "10px 20px", borderRadius: "14px", display: "flex", gap: 8, alignItems: "center", fontWeight: 800, cursor: "pointer", fontSize: "14px", boxShadow: "0 4px 15px rgba(255,107,0,0.3)", whiteSpace: "nowrap" }}>
             <FiPlus size={18} /> Vente Directe
           </motion.button>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsExpenseModalOpen(true)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", padding: "10px 16px", borderRadius: "14px", display: "flex", gap: 8, alignItems: "center", fontWeight: 700, cursor: "pointer", fontSize: "14px", backdropFilter: "blur(10px)", whiteSpace: "nowrap" }}>
-            <FiDollarSign size={18} color="var(--color-primary)" /> <span className="hide-mobile">Dépense</span>
+            <FiDollarSign size={18} color="var(--color-primary)" /> Dépense
           </motion.button>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => navigate("/pos/cycle")} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", padding: "10px 16px", borderRadius: "14px", display: "flex", gap: 8, alignItems: "center", fontWeight: 700, cursor: "pointer", fontSize: "14px", backdropFilter: "blur(10px)", whiteSpace: "nowrap" }}>
-            <FiCreditCard size={18} /> <span className="hide-mobile">Caisse</span>
+            <FiCreditCard size={18} /> Caisse
           </motion.button>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { posLogout(); navigate("/pos"); }} style={{ background: "rgba(255,71,87,0.1)", border: "1px solid rgba(255,71,87,0.1)", color: "#ff4757", padding: "10px 16px", borderRadius: "14px", display: "flex", gap: 8, alignItems: "center", fontWeight: 700, cursor: "pointer", fontSize: "14px" }}>
-            <FiLogOut size={18} />
+            <FiLogOut size={18} /> Déconnexion
           </motion.button>
         </div>
+
+        {/* Mobile : uniquement le bouton déconnexion — masqué sur desktop */}
+        <motion.button
+          className="hide-desktop"
+          whileTap={{ scale: 0.9 }}
+          onClick={() => { posLogout(); navigate("/pos"); }}
+          style={{ background: "rgba(255,71,87,0.1)", border: "1px solid rgba(255,71,87,0.15)", color: "#ff4757", padding: "10px 12px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+        >
+          <FiLogOut size={18} />
+        </motion.button>
       </div>
 
       {/* Cycle Warning */}
@@ -142,15 +154,15 @@ export function TablesPage() {
       )}
 
       {/* Plan de salle Content */}
-      <div style={{ flex: 1, padding: "32px", display: "flex", flexDirection: "column", gap: 32, zIndex: 1, overflowY: "auto" }}>
+      <div style={{ flex: 1, padding: "clamp(16px, 4vw, 32px)", display: "flex", flexDirection: "column", gap: "clamp(16px, 3vw, 32px)", zIndex: 1, overflowY: "auto" }}>
         
         {/* Info Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 20 }}>
           <div>
-            <h2 style={{ fontSize: "28px", fontWeight: 900, margin: 0, display: "flex", alignItems: "center", gap: 12, letterSpacing: "-1px" }}>
+            <h2 style={{ fontSize: "clamp(20px, 4vw, 28px)", fontWeight: 900, margin: 0, display: "flex", alignItems: "center", gap: 12, letterSpacing: "-1px" }}>
               <FiGrid color="var(--color-primary)" /> {labels.tablesView}
             </h2>
-            <p style={{ color: "rgba(255,255,255,.4)", fontSize: "14px", margin: "6px 0 0 0", fontWeight: 600 }}>
+            <p className="hide-mobile" style={{ color: "rgba(255,255,255,.4)", fontSize: "14px", margin: "6px 0 0 0", fontWeight: 600 }}>
               Structure actuelle de la salle et occupation en temps réel.
             </p>
           </div>
@@ -182,7 +194,7 @@ export function TablesPage() {
                <div style={{ width: 24, height: 2, background: "#9b59b6" }} />
                <span style={{ fontSize: "14px", fontWeight: 800, color: "#9b59b6", textTransform: "uppercase", letterSpacing: "1px" }}>Ventes en direct / Emporté</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))", gap: "clamp(12px, 3vw, 24px)" }}>
                <motion.div
                   whileHover={{ y: -8, boxShadow: "0 15px 30px rgba(155, 89, 182, 0.2)" }}
                   onClick={() => setSelectedTable({ table: { id: "direct", name: "Vente Directe", capacity: 0, isActive: true, qrToken: "", qrUrl: "" }, orders: directOrders })}
@@ -205,7 +217,7 @@ export function TablesPage() {
         )}
 
         {/* Grid des Tables */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))", gap: "clamp(12px, 3vw, 24px)" }}>
           <AnimatePresence>
             {activeTables.map((table) => {
               const state = getTableState(table);
@@ -224,6 +236,7 @@ export function TablesPage() {
                   whileTap={{ scale: 0.98 }}
                   key={table.id}
                   onClick={() => handleTableClick(table)}
+                  className="table-card"
                   style={{
                     background: cfg.bg, border: `2px solid ${cfg.border}`,
                     borderRadius: "28px", padding: "24px", display: "flex", flexDirection: "column",

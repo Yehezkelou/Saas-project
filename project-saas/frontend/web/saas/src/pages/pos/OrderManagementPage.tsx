@@ -78,11 +78,15 @@ export function OrderManagementPage() {
         <button onClick={() => navigate("/pos/tables")} style={{ background: "none", border: "none", color: "var(--color-primary)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: "15px" }}>
           <FiArrowLeft size={18} /> Retour
         </button>
-        <div style={{ textAlign: "center" }}>
-          <h1 style={{ fontWeight: 800, fontSize: "18px", margin: 0, letterSpacing: "-0.5px" }}>Gestion des Commandes</h1>
-          <p style={{ margin: 0, fontSize: "12px", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase" }}>{labels.establishmentName}</p>
+        <div style={{ flex: 1, textAlign: "center", minWidth: 0 }}>
+          <h1 style={{ fontWeight: 800, fontSize: "clamp(15px, 4vw, 18px)", margin: 0, letterSpacing: "-0.5px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            Gestion des Commandes
+          </h1>
+          <p className="hide-mobile" style={{ margin: 0, fontSize: "12px", color: "rgba(255,255,255,0.4)", fontWeight: 600, textTransform: "uppercase" }}>
+            {labels.establishmentName}
+          </p>
         </div>
-        <div style={{ width: 80 }} />
+        <div className="hide-mobile" style={{ width: 80 }} />
       </div>
 
       {/* Tabs Navigation */}

@@ -15,8 +15,10 @@ import { StaffLoginPage } from "./pages/staff/StaffLoginPage";
 import { TablesPage }    from "./pages/pos/TablesPage";
 import { OrderPage }     from "./pages/pos/OrderPage";
 import { PaymentPage }   from "./pages/pos/PaymentPage";
+import { KitchenPage }     from "./pages/pos/KitchenPage";
 import { OrderManagementPage } from "./pages/pos/OrderManagementPage";
 import { CyclePage }     from "./pages/pos/CyclePage";
+import { PosLayout }     from "./pages/pos/PosLayout";
 
 // Admin
 import { AdminLayout }          from "./pages/admin/AdminLayout";
@@ -82,11 +84,14 @@ export default function App() {
 
       {/* ── POS Staff ── */}
       <Route path="/pos"             element={<StaffLoginPage />} />
-      <Route path="/pos/tables"      element={<RequireStaffSession><TablesPage /></RequireStaffSession>} />
-      <Route path="/pos/order/:tableId" element={<RequireStaffSession><OrderPage /></RequireStaffSession>} />
-      <Route path="/pos/payment/:orderId" element={<RequireStaffSession><PaymentPage /></RequireStaffSession>} />
-      <Route path="/pos/kitchen"     element={<RequireStaffSession><OrderManagementPage /></RequireStaffSession>} />
-      <Route path="/pos/cycle"       element={<RequireStaffSession><CyclePage /></RequireStaffSession>} />
+      <Route element={<RequireStaffSession><PosLayout /></RequireStaffSession>}>
+        <Route path="/pos/tables"      element={<TablesPage />} />
+        <Route path="/pos/order/:tableId" element={<OrderPage />} />
+        <Route path="/pos/payment/:orderId" element={<PaymentPage />} />
+        <Route path="/pos/kitchen"     element={<OrderManagementPage />} />
+        <Route path="/pos/kds"         element={<KitchenPage />} />
+        <Route path="/pos/cycle"       element={<CyclePage />} />
+      </Route>
 
       {/* ── Admin ── */}
       <Route path="/login"    element={<LoginPage />} />

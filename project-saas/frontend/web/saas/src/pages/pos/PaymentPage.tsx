@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { PaymentApi } from "../../api";
 import { Button, showToast } from "../../components/ui";
@@ -57,11 +57,13 @@ export function PaymentPage() {
         <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", color: "var(--color-primary)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: "15px" }}>
           <FiArrowLeft size={18} /> Retour
         </button>
-        <h1 style={{ fontWeight: 800, fontSize: "20px", margin: 0, letterSpacing: "-0.5px" }}>Encaissement — {state?.tableName}</h1>
-        <div style={{ width: 80 }} />
+        <h1 style={{ fontWeight: 800, fontSize: "clamp(15px, 4vw, 20px)", margin: 0, letterSpacing: "-0.5px", textAlign: "center", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          Encaissement — {state?.tableName}
+        </h1>
+        <div className="hide-mobile" style={{ width: 80 }} />
       </div>
 
-      <div style={{ flex: 1, maxWidth: 540, margin: "0 auto", width: "100%", padding: "40px 24px", display: "flex", flexDirection: "column", gap: 32, zIndex: 1 }}>
+      <div className="p-page" style={{ flex: 1, maxWidth: 540, margin: "0 auto", width: "100%", padding: "40px 24px", display: "flex", flexDirection: "column", gap: 32, zIndex: 1 }}>
         
         {/* Total Card */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: "24px", padding: "32px", textAlign: "center", backdropFilter: "blur(20px)", boxShadow: "0 10px 40px rgba(0,0,0,0.3)" }}>

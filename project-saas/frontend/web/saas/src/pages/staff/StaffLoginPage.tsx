@@ -4,7 +4,7 @@ import { AuthApi } from "../../api";
 import { usePosStore } from "../../stores";
 import { Spinner } from "../../components/ui";
 import { motion } from "framer-motion";
-import { FiUser, FiDelete } from "react-icons/fi";
+import { FiUser, FiDelete, FiEye, FiEyeOff } from "react-icons/fi";
 
 export function StaffLoginPage() {
   const navigate      = useNavigate();
@@ -65,7 +65,7 @@ export function StaffLoginPage() {
   const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"];
 
   return (
-    <div style={{
+    <div className="login-page-container" style={{
       minHeight: "100vh", background: "#121214",
       display: "flex", flexDirection: "column",
       color: "#fff", fontFamily: "var(--font)", position: "relative",
@@ -75,16 +75,17 @@ export function StaffLoginPage() {
       <div style={{ position: "absolute", top: "-20%", left: "-10%", width: "60%", height: "60%", background: "radial-gradient(circle, rgba(255,107,0,0.15) 0%, rgba(18,18,20,0) 70%)", filter: "blur(80px)", zIndex: 0 }} />
       <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: "40%", height: "40%", background: "radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(18,18,20,0) 70%)", filter: "blur(80px)", zIndex: 0 }} />
 
-      <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: 24, zIndex: 1 }}>
+      <div className="login-form-wrapper" style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "clamp(16px, 5vw, 24px)", zIndex: 1 }}>
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }} 
           animate={{ opacity: 1, scale: 1 }}
+          className="staff-login-card"
           style={{ 
-            maxWidth: 400, width: "100%", 
+            maxWidth: 440, width: "100%", 
             background: "rgba(255, 255, 255, 0.03)", 
             backdropFilter: "blur(20px)", 
             border: "1px solid rgba(255, 255, 255, 0.08)", 
-            borderRadius: "32px", padding: "40px 32px",
+            borderRadius: "32px", padding: "clamp(24px, 8vw, 48px) clamp(20px, 6vw, 40px)",
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
           }}
         >
@@ -92,7 +93,7 @@ export function StaffLoginPage() {
             <div style={{ width: 64, height: 64, borderRadius: "20px", background: "var(--color-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "24px" }}>
               <FiUser />
             </div>
-            <h2 style={{ fontSize: "24px", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>Identification Staff</h2>
+            <h2 style={{ fontSize: "24px", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>Connexion Staff</h2>
             <p style={{ color: "rgba(255,255,255,.5)", fontSize: "14px", marginTop: 8 }}>Entrez votre identifiant unique et votre PIN</p>
           </div>
 
@@ -145,7 +146,7 @@ export function StaffLoginPage() {
                     cursor: "pointer", fontSize: "18px"
                   }}
                 >
-                  {showPin ? "🙈" : "👁️"}
+                  {showPin ? <FiEyeOff /> : <FiEye />}
                 </button>
               )}
             </div>

@@ -63,21 +63,25 @@ const IconOrbiter = ({ children, radius, duration, delay = 0, reverse = false }:
 };
 
 // ── Composant Principal : Logo avec Orbites ──────────────────
-export const LogoOrbit = () => {
+export const LogoOrbit = ({ size = 300 }: { size?: number }) => {
   const icons = [
-    { Icon: MdOutlineStorefront, color: "#60a5fa" }, // Bleu
-    { Icon: BiBeer,              color: "#f59e0b" }, // Ambre
-    { Icon: MdRestaurant,        color: "#f87171" }, // Rouge
-    { Icon: MdCoffee,            color: "#d97706" }, // Marron/Orange
-    { Icon: MdFastfood,          color: "#fbbf24" }, // Jaune
-    { Icon: MdBusiness,          color: "#c084fc" }, // Violet
+    { Icon: MdOutlineStorefront, color: "#60a5fa" },
+    { Icon: BiBeer,              color: "#f59e0b" },
+    { Icon: MdRestaurant,        color: "#f87171" },
+    { Icon: MdCoffee,            color: "#d97706" },
+    { Icon: MdFastfood,          color: "#fbbf24" },
+    { Icon: MdBusiness,          color: "#c084fc" },
   ];
+
+  const scale = size / 300;
+  const outerOrbit = 120 * scale;
+  const innerOrbit = 85 * scale;
 
   return (
     <div style={{
       position: "relative",
-      width: 300,
-      height: 300,
+      width: size,
+      height: size,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -88,7 +92,7 @@ export const LogoOrbit = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
         style={{
-          fontSize: 72,
+          fontSize: 72 * scale,
           fontWeight: 900,
           color: "#fff",
           letterSpacing: "-0.05em",
@@ -102,29 +106,29 @@ export const LogoOrbit = () => {
       {/* Cercles d'orbite subtils */}
       <div style={{
         position: "absolute",
-        width: 240,
-        height: 240,
+        width: 240 * scale,
+        height: 240 * scale,
         borderRadius: "50%",
         border: "1px solid rgba(255,255,255,0.05)",
       }} />
       <div style={{
         position: "absolute",
-        width: 160,
-        height: 160,
+        width: 160 * scale,
+        height: 160 * scale,
         borderRadius: "50%",
         border: "1px solid rgba(255,255,255,0.05)",
       }} />
 
       {/* Icônes qui tournent */}
       {icons.slice(0, 3).map((item, i) => (
-        <IconOrbiter key={i} radius={120} duration={20} delay={i * (20 / 3)}>
-          <item.Icon size={24} style={{ color: item.color, filter: `drop-shadow(0 0 8px ${item.color}66)` }} />
+        <IconOrbiter key={i} radius={outerOrbit} duration={20} delay={i * (20 / 3)}>
+          <item.Icon size={24 * scale} style={{ color: item.color, filter: `drop-shadow(0 0 8px ${item.color}66)` }} />
         </IconOrbiter>
       ))}
 
       {icons.slice(3, 6).map((item, i) => (
-        <IconOrbiter key={i + 3} radius={85} duration={15} delay={i * (15 / 3)} reverse>
-          <item.Icon size={18} style={{ color: item.color, filter: `drop-shadow(0 0 6px ${item.color}66)` }} />
+        <IconOrbiter key={i + 3} radius={innerOrbit} duration={15} delay={i * (15 / 3)} reverse>
+          <item.Icon size={18 * scale} style={{ color: item.color, filter: `drop-shadow(0 0 6px ${item.color}66)` }} />
         </IconOrbiter>
       ))}
     </div>

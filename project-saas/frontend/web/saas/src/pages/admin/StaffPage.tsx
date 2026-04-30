@@ -57,7 +57,7 @@ function StaffList({ members, viewMode, isGrouped, onEdit, onDelete }: StaffList
   }
 
   return (
-    <div className="mobile-card-list" style={{ background: "var(--color-surface)", borderRadius: "20px", border: "1px solid var(--color-border-light)", overflow: "hidden" }}>
+    <div style={{ background: "var(--color-surface)", borderRadius: "20px", border: "1px solid var(--color-border-light)", overflow: "hidden" }}>
       <table className="hide-mobile" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
         <thead style={{ background: "var(--color-bg)", borderBottom: "1px solid var(--color-border-light)" }}>
           <tr>
@@ -106,7 +106,7 @@ function StaffList({ members, viewMode, isGrouped, onEdit, onDelete }: StaffList
       </table>
 
       {/* Version Mobile (Liste de cartes) */}
-      <div className="show-mobile" style={{ display: "none" }}>
+      <div className="show-mobile">
         <div style={{ display: "flex", flexDirection: "column" }}>
           {members.map((staff) => (
             <div key={staff.id} style={{ padding: "16px", borderBottom: "1px solid var(--color-border-light)", display: "flex", alignItems: "center", gap: 16 }}>
@@ -128,6 +128,7 @@ function StaffList({ members, viewMode, isGrouped, onEdit, onDelete }: StaffList
     </div>
   );
 }
+
 
 export function StaffPage() {
   const [activeTab,  setActiveTab]  = useState<"staff" | "roles">("staff");

@@ -73,7 +73,7 @@ export function RegisterPage() {
     }}>
       <GlassyBackground />
 
-      <div style={{ width: "100%", maxWidth: 560, zIndex: 10 }}>
+      <div className="register-container" style={{ width: "100%", maxWidth: 640, zIndex: 10 }}>
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <h1 style={{ fontSize: "var(--text-xxxl)", fontWeight: 900, letterSpacing: "-0.05em", marginBottom: 8 }}>Saas</h1>
@@ -84,7 +84,7 @@ export function RegisterPage() {
         </div>
 
         {/* Indicateur d'étapes */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 32 }}>
+        <div className="steps-indicator" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 32 }}>
           {[1, 2].map((s) => (
             <React.Fragment key={s}>
               <div style={{
@@ -99,18 +99,18 @@ export function RegisterPage() {
                 {step > s ? "✓" : s}
               </div>
               {s < 2 && (
-                <div style={{ width: 48, height: 2, background: step > s ? "var(--color-primary)" : "rgba(255,255,255,0.1)", transition: "all .3s" }} />
+                <div className="step-line" style={{ width: 48, height: 2, background: step > s ? "var(--color-primary)" : "rgba(255,255,255,0.1)", transition: "all .3s" }} />
               )}
             </React.Fragment>
           ))}
         </div>
 
-        <div style={{ 
+        <div className="register-card" style={{ 
           background: "rgba(255, 255, 255, 0.03)", 
           backdropFilter: "blur(12px)",
           border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "var(--radius-xl)", 
-          padding: 40,
+          padding: "clamp(24px, 6vw, 40px)",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
         }}>
 
@@ -126,7 +126,7 @@ export function RegisterPage() {
                 </p>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="business-type-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 {BUSINESS_TYPES.map((type) => (
                   <div
                     key={type.value}

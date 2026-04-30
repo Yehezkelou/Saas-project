@@ -44,6 +44,7 @@ export class CycleController {
             const cycle = await this.service.close(req.tenant!, req.params.id as string, req.body)
             return res.status(200).json({success : true, data : cycle, message : "Cycle fermé avec succés"})
         }catch(e : any){
+            console.error("[CycleController.close] Error:", e);
             const err = this.errorMap[e.message]
             if(err) return res.status(err.status).json({success : false, message : err.message})
             return res.status(500).json({success : false, message : "Erreur serveur"})

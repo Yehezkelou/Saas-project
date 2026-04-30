@@ -31,15 +31,17 @@ export function SuperAdminLoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0B", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "#fff", fontFamily: "var(--font)" }}>
+    <div className="login-page-container" style={{ minHeight: "100vh", background: "#0A0A0B", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "#fff", fontFamily: "var(--font)" }}>
       {/* Background Effect */}
       <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 600, height: 600, background: "radial-gradient(circle, rgba(255,107,0,0.08) 0%, transparent 70%)", filter: "blur(80px)", zIndex: 0 }} />
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{ maxWidth: 420, width: "100%", position: "relative", zIndex: 1 }}
-      >
+      <div className="login-form-wrapper" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="sys-login-card"
+          style={{ maxWidth: 420, width: "100%", position: "relative", zIndex: 1 }}
+        >
         <div style={{ textAlign: "center", marginBottom: 40 }}>
            <div style={{ width: 64, height: 64, background: "rgba(255,107,0,0.1)", borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "var(--color-primary)", fontSize: 32 }}>
               <FiShield />
@@ -107,5 +109,6 @@ export function SuperAdminLoginPage() {
         </div>
       </motion.div>
     </div>
+  </div>
   );
 }

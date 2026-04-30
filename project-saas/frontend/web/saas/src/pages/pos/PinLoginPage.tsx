@@ -4,7 +4,7 @@ import { StaffApi } from "../../api";
 import { usePosStore, useAuthStore } from "../../stores";
 import { Spinner } from "../../components/ui";
 import { motion } from "framer-motion";
-import { FiUser, FiUnlock, FiDelete } from "react-icons/fi";
+import { FiUser, FiUnlock, FiDelete, FiEye, FiEyeOff } from "react-icons/fi";
 
 export function PinLoginPage() {
   const navigate      = useNavigate();
@@ -203,7 +203,7 @@ export function PinLoginPage() {
                   <div style={{ width: 64, height: 64, borderRadius: "20px", background: "var(--color-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "24px" }}>
                     <FiUser />
                   </div>
-                  <h2 style={{ fontSize: "24px", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>Identification Staff</h2>
+                  <h2 style={{ fontSize: "24px", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>Connexion Staff</h2>
                   <p style={{ color: "rgba(255,255,255,.5)", fontSize: "14px", marginTop: 8 }}>Entrez votre identifiant et votre code PIN</p>
                 </div>
 
@@ -256,7 +256,7 @@ export function PinLoginPage() {
                           cursor: "pointer", fontSize: "18px"
                         }}
                       >
-                        {showPin ? "🙈" : "👁️"}
+                        {showPin ? <FiEyeOff /> : <FiEye />}
                       </button>
                     )}
                   </div>

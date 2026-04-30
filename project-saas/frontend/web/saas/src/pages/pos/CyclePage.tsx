@@ -7,6 +7,7 @@ import { formatPrice, formatTime } from "../../theme";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUnlock, FiLock, FiDollarSign, FiFileText, FiArrowLeft, FiPlus, FiArchive, FiBox, FiTool, FiHome, FiUser, FiZap, FiTarget, FiCoffee, FiPlusCircle } from "react-icons/fi";
 import { ExpenseModal } from "../../components/ExpenseModal";
+import { ConfirmActionModal } from "../../components/cardconfirm/ConfirmActionModal";
 
 const CATEGORY_MAP: Record<string, { icon: any, color: string }> = {
   SUPPLIES:    { icon: FiBox,        color: "#3498db" },
@@ -29,6 +30,7 @@ export function CyclePage() {
   const [working,  setWorking]  = useState(false);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState(false);
 
   const setActiveCycleId = usePosStore((s) => s.setActiveCycle);
 
@@ -79,7 +81,7 @@ export function CyclePage() {
 
   const handleClose = async () => {
     if (!cycle) return;
-    if (!window.confirm("Fermer la caisse ? Toutes les commandes non encaissées devront l'être plus tard.")) return;
+    setIsConfirmCloseOpen(false);
     try {
       setWorking(true);
       const result = await CycleApi.close(cycle.id, parseFloat(cash) || 0, notes);
@@ -107,11 +109,13 @@ export function CyclePage() {
         <button onClick={() => navigate("/pos/tables")} style={{ background: "none", border: "none", color: "var(--color-primary)", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: "15px" }}>
           <FiArrowLeft size={18} /> Retour
         </button>
-        <h1 style={{ fontWeight: 800, fontSize: "20px", margin: 0, letterSpacing: "-0.5px" }}>Gestion de la Caisse</h1>
-        <div style={{ width: 80 }} />
+        <h1 style={{ fontWeight: 800, fontSize: "clamp(16px, 4vw, 20px)", margin: 0, letterSpacing: "-0.5px", textAlign: "center", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          Gestion de la Caisse
+        </h1>
+        <div className="hide-mobile" style={{ width: 80 }} />
       </div>
 
-      <div style={{ flex: 1, maxWidth: 540, margin: "0 auto", width: "100%", padding: "40px 24px", display: "flex", flexDirection: "column", gap: 24, zIndex: 1, alignItems: "center" }}>
+      <div className="p-page" style={{ flex: 1, maxWidth: 540, margin: "0 auto", width: "100%", padding: "40px 24px", display: "flex", flexDirection: "column", gap: 24, zIndex: 1, alignItems: "center" }}>
         {/* Status Card & Action Area */}
         {!cycle && !hasStaff ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: "100%", background: "rgba(243, 156, 18, 0.1)", border: "1px solid rgba(243, 156, 18, 0.2)", borderRadius: "24px", padding: "32px", textAlign: "center", backdropFilter: "blur(20px)" }}>
@@ -181,7 +185,7 @@ export function CyclePage() {
 
               <Button 
                 variant={cycle ? "danger" : "primary"} 
-                onClick={cycle ? handleClose : handleOpen} 
+                onClick={cycle ? () => setIsConfirmCloseOpen(true) : handleOpen} 
                 loading={working} 
                 fullWidth 
                 style={{ padding: "18px", fontSize: "16px", borderRadius: "16px", fontWeight: 800, marginTop: 8 }}
@@ -251,6 +255,16 @@ export function CyclePage() {
                 if (cycle) loadExpenses(cycle.id);
                 showToast("Dépense enregistrée", "success");
               }} 
+            />
+
+            {/* Confirmation Closure Modal — Standardized */}
+            <ConfirmActionModal
+              open={isConfirmCloseOpen}
+              onClose={() => setIsConfirmCloseOpen(false)}
+              onConfirm={handleClose}
+              title="Fermer la Caisse"
+              message="Êtes-vous sûr de vouloir fermer la caisse ? Toutes les commandes en cours devront être encaissées ultérieurement."
+              type="reject"
             />
           </motion.div>
         )}
