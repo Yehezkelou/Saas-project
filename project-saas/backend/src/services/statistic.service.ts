@@ -9,6 +9,7 @@ export class StatisticService {
   async calculateStatistics(tenantId: string, startDateStr: string, endDateStr: string) {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
+    endDate.setHours(23, 59, 59, 999); // Include the full end day
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       throw new Error("INVALID_DATES");

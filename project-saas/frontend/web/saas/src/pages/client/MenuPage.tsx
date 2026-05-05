@@ -10,6 +10,7 @@ import { formatPrice } from "../../theme";
 import { OrderApi, type Order } from "../../api";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiSearch, FiShoppingCart, FiChevronLeft, FiPlus, FiMinus } from "react-icons/fi";
+import { BiDrink, BiRestaurant } from "react-icons/bi";
 import { formatImageUrl } from "../admin/MenuManagerPage";
 
 const getEmojiForName = (name: string) => {
@@ -165,7 +166,15 @@ export function MenuPage() {
                     boxShadow: isActive ? "0 10px 20px rgba(255,107,0,0.3)" : "none",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                   }}>
-                    {cat.id === "ALL" ? "🔥" : getEmojiForName(cat.name)}
+                    {cat.id === "ALL" ? (
+                      "🔥"
+                    ) : cat.name.toLowerCase().includes("boisson") || cat.name.toLowerCase().includes("drink") ? (
+                      <BiDrink />
+                    ) : cat.name.toLowerCase().includes("food") || cat.name.toLowerCase().includes("plat") || cat.name.toLowerCase().includes("manger") ? (
+                      <BiRestaurant />
+                    ) : (
+                      getEmojiForName(cat.name)
+                    )}
                   </div>
                   <span style={{ fontSize: 12, fontWeight: isActive ? 700 : 500, color: isActive ? "#fff" : "rgba(255,255,255,0.5)", whiteSpace: "nowrap" }}>
                     {cat.name}

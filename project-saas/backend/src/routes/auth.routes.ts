@@ -11,6 +11,7 @@ const authConroller = new AuthController()
 // route auth
 route.post("/register", validate(registerSchema), authConroller.RegisterController)
 route.post("/login", validate(LoginSchema), authConroller.LoginController)
+route.post("/google", authConroller.googleLogin)
 route.post("/system-login", validate(LoginSchema), authConroller.superAdminLogin)
 route.post("/staff-login", validate(StaffLoginSchema), authConroller.StaffLoginController)
 

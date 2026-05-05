@@ -3,6 +3,9 @@ import prisma from "../lib/prisma";
 import type { loginInput, registerInput, staffInput } from "../validators/Auth.validator";
 import { getDefaultCategories, getDefaultRoles, getDefaultSubscription } from "../lib/defaults";
 import { Signtoken } from "../lib/jwt";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AuthService {
 
@@ -210,5 +213,119 @@ export class AuthService {
                 businessType: staff.tenant.businessType
             }
         };
+    }
+
+    // Authentification Google
+    async googleLogin(data: { token: string; tenantName?: string; businessType?: any; phone?: string }) {
+        try {
+            const ticket = await googleClient.verifyIdToken({
+                idToken: data.token,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            if (!payload || !payload.email) throw new Error("INVALID_GOOGLE_TOKEN");
+
+            const email = payload.email;
+
+            // Verifier si l'utilisateur existe
+            let user = await prisma.user.findUnique({
+                where: { email },
+                include: { tenant: true }
+            });
+
+            if (!user) {
+                // Si l'utilisateur n'existe pas, il doit fournir les infos de l'établissement
+                if (!data.tenantName || !data.businessType) {
+                    return {
+                        needsRegistration: true,
+                        email,
+                        name: payload.name,
+                        picture: payload.picture
+                    };
+                }
+
+                // Inscription via Google
+                const result = await prisma.$transaction(async (tx) => {
+                    const tenant = await tx.tenant.create({
+                        data: {
+                            name: data.tenantName!,
+                            businessType: data.businessType,
+                        }
+                    });
+
+                    const newUser = await tx.user.create({
+                        data: {
+                            tenantId: tenant.id,
+                            email,
+                            phone: data.phone || null,
+                            password: "", // Pas de mot de passe pour Google
+                            role: "ADMIN"
+                        }
+                    });
+
+                    await tx.subscription.create({
+                        data: {
+                            tenantId: tenant.id,
+                            ...getDefaultSubscription(),
+                        }
+                    });
+
+                    const defautsRoles = getDefaultRoles(data.businessType);
+                    if (defautsRoles && defautsRoles.length > 0) {
+                        await tx.role.createMany({
+                            data: defautsRoles.map((role) => ({
+                                tenantId: tenant.id,
+                                name: role.name,
+                                permissions: role.permissions
+                            })),
+                        });
+                    }
+
+                    const defaultCategories = getDefaultCategories(data.businessType);
+                    await tx.category.createMany({
+                        data: defaultCategories.map((cat) => ({
+                            tenantId: tenant.id,
+                            name: cat.name,
+                            type: cat.type
+                        }))
+                    });
+
+                    return { tenant, user: newUser };
+                });
+
+                user = { ...result.user, tenant: result.tenant } as any;
+            }
+
+            // Verifier l'abonnement
+            const subscription = await prisma.subscription.findUnique({
+                where: { tenantId: user!.tenantId }
+            });
+
+            if (!subscription || subscription.status === "SUSPENDED") {
+                throw new Error("ACCOUNT_SUSPENDED");
+            }
+
+            const token = Signtoken({
+                userId: user!.id,
+                tenantId: user!.tenantId,
+                role: user!.role
+            });
+
+            return {
+                token,
+                user: {
+                    id: user!.id,
+                    tenantId: user!.tenantId,
+                    role: user!.role
+                },
+                tenant: {
+                    id: user!.tenant.id,
+                    name: user!.tenant.name,
+                    businessType: user!.tenant.businessType,
+                }
+            };
+        } catch (error: any) {
+            throw error;
+        }
     }
 }

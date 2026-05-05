@@ -131,6 +131,8 @@ export const AuthApi = {
     post<{ token: string; user: any; tenant: any }>("/auth/register", data),
   staffLogin: (identifier: string, pin: string) =>
     post<{ token: string; staff: any; tenant: any }>("/auth/staff-login", { identifier, pin }),
+  googleLogin: (data: { token: string; tenantName?: string; businessType?: string; phone?: string }) =>
+    post<{ token: string; user: any; tenant: any; needsRegistration?: boolean; email?: string; name?: string }>("/auth/google", data),
   me:       () => get<any>("/auth/me"),
 };
 

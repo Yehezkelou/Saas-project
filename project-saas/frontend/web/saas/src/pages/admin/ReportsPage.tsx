@@ -339,6 +339,35 @@ export function ReportsPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Ventes par produits */}
+                  {report.productSales && report.productSales.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16, gridColumn: "1 / -1" }}>
+                      <h3 style={{ fontWeight: 800, fontSize: "16px", color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: 8 }}>
+                        <FiPackage /> Ventes par produits
+                      </h3>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+                        {report.productSales.map((ps: any, idx: number) => (
+                          <div key={idx} style={{ display: "flex", gap: 14, alignItems: "center", background: "var(--color-bg)", border: "1px solid var(--color-border-light)", padding: "16px", borderRadius: "20px" }}>
+                            {ps.productImageUrl ? (
+                              <img src={formatImageUrl(ps.productImageUrl)} alt={ps.productName} style={{ width: 52, height: 52, borderRadius: "12px", objectFit: "cover", flexShrink: 0 }} />
+                            ) : (
+                              <div style={{ width: 52, height: 52, borderRadius: "12px", background: "var(--color-surface)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <FiPackage size={22} color="var(--color-text-tertiary)" />
+                              </div>
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 800, fontSize: "14px", color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ps.productName}</div>
+                              <div style={{ fontSize: "12px", color: "var(--color-text-tertiary)", fontWeight: 700, marginTop: 2 }}>{ps.quantity} unités vendues</div>
+                            </div>
+                            <div style={{ fontWeight: 900, color: "var(--color-text-primary)", fontSize: "15px", textAlign: "right" }}>
+                              {formatPrice(ps.revenue)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ) : (

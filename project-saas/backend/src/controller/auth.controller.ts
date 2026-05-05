@@ -190,4 +190,25 @@ export class AuthController {
         }
     }
 
+    googleLogin = async (req: Request, res: Response) => {
+        try {
+            const result = await new AuthService().googleLogin(req.body);
+            return res.status(200).json({
+                success: true,
+                data: result
+            });
+        } catch (error: any) {
+            if (error.message === "ACCOUNT_SUSPENDED") {
+                return res.status(403).json({
+                    success: false,
+                    message: "Compte suspendu"
+                });
+            }
+            logger.error(`Erreur Google Auth: ${error.message}`);
+            return res.status(500).json({
+                success: false,
+                message: "Erreur d'authentification Google"
+            });
+        }
+    }
 }

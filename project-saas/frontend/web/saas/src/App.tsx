@@ -3,6 +3,7 @@
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore, useTableStore, usePosStore } from "./stores";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Client QR
 import { QrScanPage }       from "./pages/client/QrScanPage";
@@ -74,43 +75,45 @@ function RequireStaffSession({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      {/* ── Client QR ── */}
-      <Route path="/scan"            element={<QrScanPage />} />
-      <Route path="/scan/:qrToken"   element={<QrScanPage />} />
-      <Route path="/menu"            element={<RequireTableSession><MenuPage /></RequireTableSession>} />
-      <Route path="/cart"            element={<RequireTableSession><CartPage /></RequireTableSession>} />
-      <Route path="/confirmation/:orderId" element={<RequireTableSession><ConfirmationPage /></RequireTableSession>} />
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "PLACEHOLDER_GOOGLE_CLIENT_ID"}>
+      <Routes>
+        {/* ── Client QR ── */}
+        <Route path="/scan"            element={<QrScanPage />} />
+        <Route path="/scan/:qrToken"   element={<QrScanPage />} />
+        <Route path="/menu"            element={<RequireTableSession><MenuPage /></RequireTableSession>} />
+        <Route path="/cart"            element={<RequireTableSession><CartPage /></RequireTableSession>} />
+        <Route path="/confirmation/:orderId" element={<RequireTableSession><ConfirmationPage /></RequireTableSession>} />
 
-      {/* ── POS Staff ── */}
-      <Route path="/pos"             element={<StaffLoginPage />} />
-      <Route element={<RequireStaffSession><PosLayout /></RequireStaffSession>}>
-        <Route path="/pos/tables"      element={<TablesPage />} />
-        <Route path="/pos/order/:tableId" element={<OrderPage />} />
-        <Route path="/pos/payment/:orderId" element={<PaymentPage />} />
-        <Route path="/pos/kitchen"     element={<OrderManagementPage />} />
-        <Route path="/pos/kds"         element={<KitchenPage />} />
-        <Route path="/pos/cycle"       element={<CyclePage />} />
-      </Route>
+        {/* ── POS Staff ── */}
+        <Route path="/pos"             element={<StaffLoginPage />} />
+        <Route element={<RequireStaffSession><PosLayout /></RequireStaffSession>}>
+          <Route path="/pos/tables"      element={<TablesPage />} />
+          <Route path="/pos/order/:tableId" element={<OrderPage />} />
+          <Route path="/pos/payment/:orderId" element={<PaymentPage />} />
+          <Route path="/pos/kitchen"     element={<OrderManagementPage />} />
+          <Route path="/pos/kds"         element={<KitchenPage />} />
+          <Route path="/pos/cycle"       element={<CyclePage />} />
+        </Route>
 
-      {/* ── Admin ── */}
-      <Route path="/login"    element={<LoginPage />} />
-      <Route path="/system/login" element={<SuperAdminLoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/pending-verification" element={<PendingVerificationPage />} />
-      
-      <Route path="/" element={<RequireAuth><AdminLayout /></RequireAuth>}>
-        <Route index                element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard"     element={<DashboardPage />} />
-        <Route path="menu-manager"  element={<MenuManagerPage />} />
-        <Route path="staff"         element={<StaffPage />} />
-        <Route path="tables-manager" element={<TablesManagerPage />} />
-        <Route path="reports"       element={<ReportsPage />} />
-        <Route path="subscription"  element={<SubscriptionPage />} />
-        <Route path="super-admin"   element={<SuperAdminPage />} />
-      </Route>
+        {/* ── Admin ── */}
+        <Route path="/login"    element={<LoginPage />} />
+        <Route path="/system/login" element={<SuperAdminLoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/pending-verification" element={<PendingVerificationPage />} />
+        
+        <Route path="/" element={<RequireAuth><AdminLayout /></RequireAuth>}>
+          <Route index                element={<Navigate to="/dashboard" replace />} />
+          <Route path="dashboard"     element={<DashboardPage />} />
+          <Route path="menu-manager"  element={<MenuManagerPage />} />
+          <Route path="staff"         element={<StaffPage />} />
+          <Route path="tables-manager" element={<TablesManagerPage />} />
+          <Route path="reports"       element={<ReportsPage />} />
+          <Route path="subscription"  element={<SubscriptionPage />} />
+          <Route path="super-admin"   element={<SuperAdminPage />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </GoogleOAuthProvider>
   );
 }

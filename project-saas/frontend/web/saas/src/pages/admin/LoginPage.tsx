@@ -5,6 +5,7 @@ import { useAuthStore } from "../../stores";
 import { Button, Input, showToast } from "../../components/ui";
 import { LogoOrbit, GlassyBackground } from "../../components/animations/SceneAnimations";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { GoogleLogin } from '@react-oauth/google';
 
 function useWindowWidth() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -43,6 +44,24 @@ export function LoginPage() {
       navigate("/dashboard");
     } catch (err: any) {
       showToast(err.response?.data?.message ?? "Email ou mot de passe incorrect", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      const result = await AuthApi.googleLogin({ token: credentialResponse.credential });
+      if (result.needsRegistration) {
+        // L'utilisateur n'existe pas, on le redirige vers l'inscription avec ses infos
+        navigate("/register", { state: { googleData: result, token: credentialResponse.credential } });
+      } else {
+        setAuth(result.token, result.user, result.tenant);
+        navigate("/dashboard");
+      }
+    } catch (err: any) {
+      showToast("Erreur lors de l'authentification Google", "error");
     } finally {
       setLoading(false);
     }
@@ -183,6 +202,23 @@ export function LoginPage() {
             <Button type="submit" loading={loading} fullWidth size="lg" style={{ marginTop: 4, height: 48 }}>
               Se connecter
             </Button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0" }}>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.05)" }} />
+              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>OU</span>
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.05)" }} />
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => showToast("Échec de la connexion Google", "error")}
+                theme="filled_black"
+                shape="pill"
+                size="large"
+                width="100%"
+              />
+            </div>
           </form>
 
           <p style={{ textAlign: "center", marginTop: 24, fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>

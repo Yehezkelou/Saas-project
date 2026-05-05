@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { AuthApi } from "../../api";
 import { useAuthStore } from "../../stores";
 import { Button, Input, showToast } from "../../components/ui";
@@ -28,21 +28,48 @@ export function RegisterPage() {
   const [showPwd,      setShowPwd]      = useState(false);
   const [loading,      setLoading]      = useState(false);
 
+  const location = useLocation();
+  const googleData = (location.state as any)?.googleData;
+  const googleToken = (location.state as any)?.token;
+
+  React.useEffect(() => {
+    if (googleData?.email) {
+      setEmail(googleData.email);
+    }
+  }, [googleData]);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirm) { showToast("Les mots de passe ne correspondent pas", "error"); return; }
-    if (password.length < 8)  { showToast("Mot de passe trop court (8 caractères min)", "error"); return; }
+    
+    if (!googleData) {
+      if (password !== confirm) { showToast("Les mots de passe ne correspondent pas", "error"); return; }
+      if (password.length < 8)  { showToast("Mot de passe trop court (8 caractères min)", "error"); return; }
+    }
 
     try {
       setLoading(true);
-      const result = await AuthApi.register({
-        email:           email.trim().toLowerCase(),
-        phone:           phone.trim(),
-        password,
-        confirmPassword: confirm,
-        tenantName:      tenantName.trim(),
-        businessType,
-      });
+      
+      let result;
+      if (googleData && googleToken) {
+        // Inscription via Google
+        result = await AuthApi.googleLogin({
+          token: googleToken,
+          tenantName: tenantName.trim(),
+          businessType: businessType as any,
+          phone: phone.trim(),
+        });
+      } else {
+        // Inscription classique
+        result = await AuthApi.register({
+          email:           email.trim().toLowerCase(),
+          phone:           phone.trim(),
+          password,
+          confirmPassword: confirm,
+          tenantName:      tenantName.trim(),
+          businessType,
+        });
+      }
+
       setAuth(result.token, result.user, result.tenant);
       showToast("Bienvenue ! Votre établissement est prêt 🎉", "success");
       navigate("/dashboard");
@@ -230,6 +257,7 @@ export function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 required
+                disabled={!!googleData}
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
               />
 
@@ -243,36 +271,40 @@ export function RegisterPage() {
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
               />
 
-              <div style={{ position: "relative" }}>
-                <Input
-                  label="Mot de passe (8 caractères min)"
-                  type={showPwd ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", paddingRight: 44 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd(!showPwd)}
-                  style={{ position: "absolute", right: 12, top: 38, background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 18 }}
-                >
-                  {showPwd ? "🙈" : "👁️"}
-                </button>
-              </div>
+              {!googleData && (
+                <>
+                  <div style={{ position: "relative" }}>
+                    <Input
+                      label="Mot de passe (8 caractères min)"
+                      type={showPwd ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", paddingRight: 44 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwd(!showPwd)}
+                      style={{ position: "absolute", right: 12, top: 38, background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 18 }}
+                    >
+                      {showPwd ? "🙈" : "👁️"}
+                    </button>
+                  </div>
 
-              <div style={{ position: "relative" }}>
-                <Input
-                  label="Confirmer le mot de passe"
-                  type={showPwd ? "text" : "password"}
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", paddingRight: 44 }}
-                />
-              </div>
+                  <div style={{ position: "relative" }}>
+                    <Input
+                      label="Confirmer le mot de passe"
+                      type={showPwd ? "text" : "password"}
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", paddingRight: 44 }}
+                    />
+                  </div>
+                </>
+              )}
 
               <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", background: "rgba(0,0,0,0.2)", padding: "12px", borderRadius: "var(--radius-md)", border: "1px solid rgba(255,255,255,0.02)" }}>
                 ✨ Votre compte inclut la configuration automatique des rôles, catégories et tables par défaut.
