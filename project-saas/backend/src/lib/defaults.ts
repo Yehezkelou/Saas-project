@@ -1,5 +1,5 @@
 
-import { BusinessType } from "../../generated/prisma/enums";
+import { BusinessType } from "../../generated/prisma";
 
 
 // ROLE PAR DEFAUT SELON LE TYPE D'ETABLISSEMENT

@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma";
 import type { createExpenseInput, updtatExpenseInput } from "../validators/expense.validator";
-import type { ExpenseCategory } from "../../generated/prisma/enums";
+import type { ExpenseCategory } from "../../generated/prisma";
 
 
 

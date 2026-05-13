@@ -26,7 +26,10 @@ import { usePosStore }   from "../store/pos.store";
 // L'URL de ton backend — à mettre dans un fichier .env
 // En développement : ton IP locale (pas localhost sur mobile !)
 // Ex : http://192.168.1.42:3000/api/v1
-const BASE_URL = "http://192.168.1.145:3000/api/v1";
+const BASE_HOST = "http://192.168.1.147:3000";
+const BASE_URL = `${BASE_HOST}/api/v1`;
+
+export { BASE_HOST };
 
 // Création de l'instance Axios
 export const api = axios.create({

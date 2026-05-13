@@ -5,9 +5,10 @@ import {
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AdminStackParams } from "../../navigation";
-import { ProductApi, Product, Category, CategoryApi, ProductModelApi, ProductModelCategory, ProductModel } from "../../api";
-import { apiPost, apiPatch } from "../../api/client";
+import { ProductApi, Product, Category, CategoryApi, ProductModelApi, ProductModelCategory, ProductModel, UploadApi } from "../../api";
+import { apiPost, apiPatch, BASE_HOST } from "../../api/client";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { launchImageLibrary } from 'react-native-image-picker';
 import { LoadingScreen } from "../../components/ui";
 
 type Props = NativeStackScreenProps<AdminStackParams, "MenuManager">;
@@ -18,8 +19,7 @@ const { width } = Dimensions.get("window");
 const formatImageUrl = (url?: string) => {
   if (!url) return "";
   if (url.startsWith("http")) return url;
-  const baseUrl = "http://172.16.160.68:3000";
-  return `${baseUrl}${url.startsWith("/") ? url : `/${url}`}`;
+  return `${BASE_HOST}${url.startsWith("/") ? url : `/${url}`}`;
 };
 
 export function MenuManagerScreen({ navigation }: Props) {
@@ -50,6 +50,7 @@ export function MenuManagerScreen({ navigation }: Props) {
   const [selectedModelCat, setSelectedModelCat] = useState<ProductModelCategory | null>(null);
   const [modelsList, setModelsList] = useState<ProductModel[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -208,6 +209,32 @@ export function MenuManagerScreen({ navigation }: Props) {
     setForm(f => ({ ...f, imageUrl: "" }));
   };
 
+  const handlePickImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+    });
+
+    if (result.didCancel || !result.assets || result.assets.length === 0) return;
+
+    const asset = result.assets[0];
+    const file = {
+      uri: Platform.OS === 'android' ? asset.uri : asset.uri?.replace('file://', ''),
+      type: asset.type,
+      name: asset.fileName || `image_${Date.now()}.jpg`,
+    };
+
+    try {
+      setImageLoading(true);
+      const data = await UploadApi.uploadImage(file);
+      setForm(f => ({ ...f, imageUrl: data.url }));
+    } catch (err) {
+      Alert.alert("Erreur", "Impossible de charger l'image");
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
   const filteredProducts = (() => {
     let list = products;
     if (activeTab !== "ALL") {
@@ -260,7 +287,10 @@ export function MenuManagerScreen({ navigation }: Props) {
     }
 
     return (
-      <View style={[styles.productCard, !product.isActive && { opacity: 0.6 }]}>
+      <TouchableOpacity 
+        style={[styles.productCard, !product.isActive && { opacity: 0.6 }]}
+        onPress={() => openEditModal(product)}
+      >
         <View style={[styles.productBrandLine, { backgroundColor: product.colorCode || "#60a5fa" }]} />
         
         <View style={styles.productImageContainer}>
@@ -294,7 +324,7 @@ export function MenuManagerScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -444,9 +474,19 @@ export function MenuManagerScreen({ navigation }: Props) {
                       </TouchableOpacity>
                     </>
                   ) : (
-                    <TouchableOpacity style={styles.modalImagePlaceholder} onPress={() => {/* Interaction to add image */}}>
-                      <MaterialIcons name="add-photo-alternate" size={40} color="rgba(255,255,255,0.1)" />
-                      <Text style={{ color: "rgba(255,255,255,0.2)", marginTop: 8, fontSize: 12 }}>Ajouter une image</Text>
+                    <TouchableOpacity 
+                      style={styles.modalImagePlaceholder} 
+                      onPress={handlePickImage}
+                      disabled={imageLoading}
+                    >
+                      {imageLoading ? (
+                        <ActivityIndicator color="rgba(255,255,255,0.4)" />
+                      ) : (
+                        <>
+                          <MaterialIcons name="add-photo-alternate" size={40} color="rgba(255,255,255,0.1)" />
+                          <Text style={{ color: "rgba(255,255,255,0.2)", marginTop: 8, fontSize: 12 }}>Ajouter une image</Text>
+                        </>
+                      )}
                     </TouchableOpacity>
                   )}
                 </View>
@@ -684,7 +724,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(255,255,255,0.05)", overflow: "hidden", alignItems: "center", paddingRight: 16
   },
   productBrandLine: { width: 4, height: "100%" },
-  productImageContainer: { width: 60, height: 60, borderRadius: 12, margin: 12, overflow: "hidden" },
+  productImageContainer: { width: 80, height: 80, borderRadius: 14, margin: 12, overflow: "hidden" },
   productImage: { width: "100%", height: "100%", resizeMode: "cover" },
   productImagePlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
   
@@ -703,7 +743,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(255,255,255,0.05)", overflow: "hidden", marginBottom: 12, marginRight: 12
   },
   productBrandLineGrid: { height: 3, width: "100%" },
-  productImageContainerGrid: { width: "100%", height: 120, overflow: "hidden" },
+  productImageContainerGrid: { width: "100%", height: 160, overflow: "hidden" },
   productInfoGrid: { padding: 12 },
   productNameGrid: { fontSize: 14, fontWeight: "800", color: "#fff", marginBottom: 4 },
   productPriceGrid: { fontSize: 13, fontWeight: "800", color: "#60a5fa", marginBottom: 8 },

@@ -500,7 +500,7 @@ console.log(form.imageUrl)
              <Button style={{ marginTop: 24 }} onClick={openCreate}>Ajouter un produit</Button>
            </div>
         ) : viewMode === "grid" ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(160px, 100%, 300px), 1fr))", gap: "clamp(12px, 2vw, 20px)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "clamp(12px, 2vw, 24px)" }}>
             <AnimatePresence>
               {filtered.map((product, i) => (
                 <motion.div
@@ -509,6 +509,7 @@ console.log(form.imageUrl)
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.12)" }}
                   transition={{ delay: i * 0.05 }}
+                  onClick={() => openEdit(product)}
                   style={{
                     background: "var(--color-surface)",
                     borderRadius: "24px",
@@ -519,7 +520,8 @@ console.log(form.imageUrl)
                     boxShadow: "var(--shadow-sm)",
                     position: "relative",
                     overflow: "hidden",
-                    transition: "all 0.3s ease"
+                    transition: "all 0.3s ease",
+                    cursor: "pointer"
                   }}
                 >
                   {/* Vertical Brand Accent */}
@@ -624,10 +626,12 @@ console.log(form.imageUrl)
                 layout
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
+                onClick={() => openEdit(product)}
                 style={{
                   background: "var(--color-surface)", borderRadius: "16px", padding: "12px 16px",
                   display: "flex", alignItems: "center", gap: 16, border: "1px solid var(--color-border-light)",
-                  boxShadow: "var(--shadow-sm)", opacity: product.isActive ? 1 : 0.6
+                  boxShadow: "var(--shadow-sm)", opacity: product.isActive ? 1 : 0.6,
+                  cursor: "pointer"
                 }}
               >
                 <div style={{ 

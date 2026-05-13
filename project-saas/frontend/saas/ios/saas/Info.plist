@@ -36,6 +36,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Cette application nécessite l'accès à votre bibliothèque de photos pour ajouter des images aux produits.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Cette application nécessite l'accès à votre appareil photo pour prendre des photos des produits.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

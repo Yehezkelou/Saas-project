@@ -204,7 +204,7 @@ export function MenuPage() {
             Aucun produit trouvé.
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 24 }}>
             <AnimatePresence>
 
             {filtered.map((product) => {
@@ -213,6 +213,8 @@ export function MenuPage() {
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     if (qty >= product.stock) {
                       showToast("Stock insuffisant pour ce produit", "error");
@@ -222,16 +224,16 @@ export function MenuPage() {
                   }}
                   style={{
                     background: "#1C1C1E",
-                    borderRadius: "28px",
+                    borderRadius: "32px",
                     border: `1px solid ${qty > 0 ? "var(--color-primary)" : "rgba(255,255,255,0.05)"}`,
                     cursor: "pointer", position: "relative",
                     display: "flex", flexDirection: "column",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.2)", transition: "all 0.2s",
+                    boxShadow: qty > 0 ? "0 15px 35px rgba(255,107,0,0.2)" : "0 10px 30px rgba(0,0,0,0.2)", transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     overflow: "hidden"
                   }}
                 >
                   {/* Image Area */}
-                  <div style={{ height: 130, width: "100%", position: "relative", background: "#2A2A2E", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ height: 180, width: "100%", position: "relative", background: "#2A2A2E", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <SafeImage 
                       src={formatImageUrl(product.imageUrl)} 
                       alt={product.name}
