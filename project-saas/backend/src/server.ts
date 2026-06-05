@@ -91,13 +91,15 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ success: false, message: "Erreur serveur interne" });
 });
 
-const PORT = 3000;
-app.listen(PORT, "0.0.0.0",() => {
-  logger.info(`Serveur démarré sur http://0.0.0.0:${PORT}`);
-  // Démarrer les cron jobs uniquement en production
- // if (process.env.NODE_ENV === "production") {
-   // startCronJobs();
- // }
-});
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  app.listen(PORT, "0.0.0.0",() => {
+    logger.info(`Serveur démarré sur http://0.0.0.0:${PORT}`);
+    // Démarrer les cron jobs uniquement en production
+    // if (process.env.NODE_ENV === "production") {
+      // startCronJobs();
+    // }
+  });
+}
 
 export default app;

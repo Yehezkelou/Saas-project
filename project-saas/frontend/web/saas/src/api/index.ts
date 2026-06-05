@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useAuthStore, useTableStore, usePosStore } from "../stores";
 
-const BASE_URL = "http://192.168.1.249:3000/api/v1";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://192.168.100.15:3000/api/v1";
 export const API_HOST = BASE_URL.replace("/api/v1", "");
 
 // ── Instance Axios ─────────────────────────────────────────
@@ -13,6 +13,7 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+
 // Injecter le bon token automatiquement
 api.interceptors.request.use((config) => {
   const tableStore = useTableStore.getState();
@@ -21,7 +22,7 @@ api.interceptors.request.use((config) => {
   const authToken  = useAuthStore.getState().token;
 
   // Si on est sur l'endpoint /staff (list), on préfère le token Admin 
-  // car on n'est pas encore "PIN-logged"
+  // car on n'est pas encore "PIN-logged" 
   const isListingStaff = config.url === "/staff" && config.method === "get";
   
   const token = isListingStaff ? (authToken ?? staffToken) : (tableToken ?? staffToken ?? authToken);
