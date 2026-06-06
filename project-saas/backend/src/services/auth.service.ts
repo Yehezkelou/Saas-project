@@ -220,7 +220,7 @@ export class AuthService {
         try {
             const ticket = await googleClient.verifyIdToken({
                 idToken: data.token,
-                audience: process.env.GOOGLE_CLIENT_ID,
+                audience: process.env.GOOGLE_CLIENT_ID!,
             });
             const payload = ticket.getPayload();
             if (!payload || !payload.email) throw new Error("INVALID_GOOGLE_TOKEN");
