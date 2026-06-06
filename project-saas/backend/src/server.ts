@@ -45,7 +45,8 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false
 }));
-app.use(cors({ origin:"*", credentials: true }));
+const allowedOrigins = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL, "http://localhost:5037", "http://localhost:5173", "http://192.168.100.15:5173"] : "*";
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(httpLogger); // Middleware de monitoring HTTP
