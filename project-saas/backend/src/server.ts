@@ -52,7 +52,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(httpLogger); // Middleware de monitoring HTTP
 
 // Servir statiquement le dossier des uploads pour afficher les images côté client
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+const uploadDir = process.env.VERCEL ? path.join("/tmp", "uploads") : path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadDir));
 
 app.get("/health", (_, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
