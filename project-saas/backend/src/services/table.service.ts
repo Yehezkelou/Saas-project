@@ -1,7 +1,7 @@
 import  jwt  from "jsonwebtoken";
 import prisma from "../lib/prisma"
 import type { createTableInput, updateTableInput } from "../validators/table.validator"
-import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 
 
 
@@ -120,8 +120,8 @@ export class TableService{
         // regenerer QRcode
         const update = await prisma.table.update({
             where : {tenantId, id: tableId},
-            data : {
-                qrToken : uuidv4()
+            data: {
+                qrToken : crypto.randomUUID()
             }
         })
 
